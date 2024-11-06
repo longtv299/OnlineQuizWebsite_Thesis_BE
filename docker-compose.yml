@@ -1,0 +1,23 @@
+services:
+  db:
+    container_name: eng-db
+    image: mysql:8.4.3
+    restart: always
+    env_file:
+      - ./.env
+    volumes:
+      - mysql:/var/lib/mysql
+    ports:
+      - 33306:3306
+
+  adminer:
+    container_name: eng-adminer
+    depends_on:
+      - db
+    image: adminer
+    ports:
+      - 8088:8080
+volumes:
+  mysql:
+    # external: true
+    name: my-app-data
