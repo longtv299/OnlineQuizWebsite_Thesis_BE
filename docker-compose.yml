@@ -2,7 +2,7 @@ services:
   db:
     container_name: eng-db
     image: mysql:8.4.3
-    restart: always
+    restart: unless-stopped
     env_file:
       - ./.env
     volumes:
@@ -17,7 +17,8 @@ services:
     image: adminer
     ports:
       - 8088:8080
+    # network_mode: host
 volumes:
   mysql:
-    # external: true
+    external: true
     name: my-app-data

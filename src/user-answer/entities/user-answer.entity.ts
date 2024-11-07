@@ -1,5 +1,5 @@
-import { Answer } from 'src/answers/entities/answer.entity';
-import { Student } from 'src/users/entities/student.entity';
+import { Answer } from '../../answers/entities/answer.entity';
+import { Student } from '../../users/entities/student.entity';
 import { Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()

@@ -1,18 +1,16 @@
 import {
-  CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
-import { Class } from 'src/classes/entities/class.entity';
+import { Class } from '../../classes/entities/class.entity';
+import { Model } from '../../core/base.entity';
 
 @Entity()
-export class Teacher {
+export class Teacher extends Model {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -22,13 +20,4 @@ export class Teacher {
 
   @OneToMany(() => Class, (c) => c.teacher)
   classes: Class[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt: Date;
 }

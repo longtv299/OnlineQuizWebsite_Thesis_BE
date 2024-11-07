@@ -1,6 +1,6 @@
-import { Class } from 'src/classes/entities/class.entity';
-import { Question } from 'src/questions/entities/question.entity';
-import { QuizzesResult } from 'src/quizzes-result/entities/quizzes-result.entity';
+import { Class } from '../../classes/entities/class.entity';
+import { Question } from '../../questions/entities/question.entity';
+import { QuizzesResult } from '../../quizzes-result/entities/quizzes-result.entity';
 import {
   Column,
   Entity,

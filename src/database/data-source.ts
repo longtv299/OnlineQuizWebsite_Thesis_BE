@@ -18,6 +18,7 @@ export const AppDataSource = new DataSource({
   logging: false,
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
+  seeds: ['src/database/seeds/main.seeder{.ts,.js}'],
   cli: {
     entitiesDir: 'src',
     subscribersDir: 'subscriber',

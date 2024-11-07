@@ -14,6 +14,10 @@ import { QuestionsModule } from './questions/questions.module';
 import { AnswersModule } from './answers/answers.module';
 import { QuizzesResultModule } from './quizzes-result/quizzes-result.module';
 import { UserAnswerModule } from './user-answer/user-answer.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
+import { CacheModule } from '@nestjs/cache-manager';
+import { CacheConfigService } from './config/cache-config.service';
 
 @Module({
   imports: [
@@ -28,16 +32,25 @@ import { UserAnswerModule } from './user-answer/user-answer.module';
         return new DataSource(options).initialize();
       },
     }),
+    CacheModule.registerAsync({
+      useClass: CacheConfigService,
+    }),
+    AuthModule,
     RolesModule,
     GendersModule,
     UsersModule,
     ClassesModule,
     QuizzesModule,
-    AuthModule,
     QuestionsModule,
     AnswersModule,
     QuizzesResultModule,
     UserAnswerModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
   ],
 })
 export class AppModule {}

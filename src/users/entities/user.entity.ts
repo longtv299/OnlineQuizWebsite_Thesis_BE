@@ -1,17 +1,18 @@
-import { Gender } from 'src/genders/entities/gender.entity';
-import { Role } from 'src/roles/entities/role.entity';
+import { Model } from '../../core/base.entity';
+import { Gender } from '../../genders/entities/gender.entity';
+import { Role } from '../../roles/entities/role.entity';
 import {
   Column,
-  CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
+import { Teacher } from './teacher.entity';
+import { Student } from './student.entity';
 
 @Entity()
-export class User {
+export class User extends Model {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -21,18 +22,18 @@ export class User {
   @Column()
   password: string;
 
+  @Column()
+  dateOfBirth: Date;
+
   @ManyToOne(() => Role)
   role: Role;
 
   @ManyToOne(() => Gender)
   gender: Gender;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @OneToOne(() => Teacher, (teacher) => teacher.user)
+  teacher: Teacher;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt: Date;
+  @OneToOne(() => Student, (student) => student.user)
+  student: Student;
 }

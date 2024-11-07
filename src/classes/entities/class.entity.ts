@@ -1,16 +1,9 @@
-import { Teacher } from 'src/users/entities/teacher.entity';
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Model } from '../../core/base.entity';
+import { Teacher } from '../../users/entities/teacher.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Class {
+export class Class extends Model {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -19,13 +12,4 @@ export class Class {
 
   @ManyToOne(() => Teacher)
   teacher: Teacher;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt: Date;
 }

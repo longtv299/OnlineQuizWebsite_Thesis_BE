@@ -1,18 +1,16 @@
-import { Question } from 'src/questions/entities/question.entity';
-import { StudentAnswer } from 'src/user-answer/entities/user-answer.entity';
+import { Model } from '../../core/base.entity';
+import { Question } from '../../questions/entities/question.entity';
+import { StudentAnswer } from '../../user-answer/entities/user-answer.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
   ManyToOne,
   OneToMany,
 } from 'typeorm';
 
 @Entity()
-export class Answer {
+export class Answer extends Model {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -30,13 +28,4 @@ export class Answer {
     (studentAnswer) => studentAnswer.selectedAnswer,
   )
   studentAnswers: StudentAnswer[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt: Date;
 }

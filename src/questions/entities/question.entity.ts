@@ -1,18 +1,16 @@
-import { Answer } from 'src/answers/entities/answer.entity';
-import { Quiz } from 'src/quizzes/entities/quiz.entity';
+import { Answer } from '../../answers/entities/answer.entity';
+import { Model } from '../../core/base.entity';
+import { Quiz } from '../../quizzes/entities/quiz.entity';
 import {
   Column,
-  CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
-export class Question {
+export class Question extends Model {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -27,13 +25,4 @@ export class Question {
 
   @OneToMany(() => Answer, (answer) => answer.question)
   answers: Answer[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt: Date;
 }

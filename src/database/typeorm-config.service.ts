@@ -10,11 +10,11 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
   createTypeOrmOptions(): TypeOrmModuleOptions {
     return {
       type: 'mysql',
-      host: this.configService.get('database.host', { infer: true }),
-      port: this.configService.get('database.port', { infer: true }),
-      username: this.configService.get('database.username', { infer: true }),
-      password: this.configService.get('database.password', { infer: true }),
-      database: this.configService.get('database.database', { infer: true }),
+      host: this.configService.get('MYSQL_HOST'),
+      port: this.configService.get('MYSQL_PORT'),
+      username: this.configService.get('MYSQL_USER'),
+      password: this.configService.get('MYSQL_PASSWORD'),
+      database: this.configService.get('MYSQL_DATABASE'),
       synchronize: true,
       dropSchema: false,
       keepConnectionAlive: true,

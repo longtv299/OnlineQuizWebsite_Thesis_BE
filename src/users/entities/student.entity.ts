@@ -1,21 +1,19 @@
 import {
-  CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
-import { QuizzesResult } from 'src/quizzes-result/entities/quizzes-result.entity';
-import { StudentAnswer } from 'src/user-answer/entities/user-answer.entity';
-import { Class } from 'src/classes/entities/class.entity';
+import { QuizzesResult } from '../../quizzes-result/entities/quizzes-result.entity';
+import { StudentAnswer } from '../../user-answer/entities/user-answer.entity';
+import { Class } from '../../classes/entities/class.entity';
+import { Model } from '../../core/base.entity';
 
 @Entity()
-export class Student {
+export class Student extends Model {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -31,13 +29,4 @@ export class Student {
 
   @ManyToOne(() => Class)
   class: Class;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt: Date;
 }

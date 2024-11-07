@@ -1,5 +1,5 @@
-import { Quiz } from 'src/quizzes/entities/quiz.entity';
-import { Student } from 'src/users/entities/student.entity';
+import { Quiz } from '../../quizzes/entities/quiz.entity';
+import { Student } from '../../users/entities/student.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
