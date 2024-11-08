@@ -6,12 +6,12 @@ import { Student } from './entities/student.entity';
 import { Teacher } from './entities/teacher.entity';
 import { User } from './entities/user.entity';
 import { GendersModule } from '../genders/genders.module';
-import { RolesModule } from '../roles/roles.module';
+import { PositionsModule } from '../positions/positions.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Student, Teacher, User]),
     GendersModule,
-    RolesModule,
+    PositionsModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

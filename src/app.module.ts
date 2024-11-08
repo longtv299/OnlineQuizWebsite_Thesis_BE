@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { RolesModule } from './roles/roles.module';
+import { PositionsModule } from './positions/positions.module';
 import { GendersModule } from './genders/genders.module';
 import { UsersModule } from './users/users.module';
 import { ClassesModule } from './classes/classes.module';
@@ -18,6 +18,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { CacheModule } from '@nestjs/cache-manager';
 import { CacheConfigService } from './config/cache-config.service';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -33,10 +34,12 @@ import { CacheConfigService } from './config/cache-config.service';
       },
     }),
     CacheModule.registerAsync({
+      isGlobal: true,
       useClass: CacheConfigService,
     }),
     AuthModule,
-    RolesModule,
+    ProfileModule,
+    PositionsModule,
     GendersModule,
     UsersModule,
     ClassesModule,

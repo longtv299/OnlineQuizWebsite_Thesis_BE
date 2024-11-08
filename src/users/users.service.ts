@@ -4,13 +4,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RoleEnum } from '../roles/role.enum';
 import { Student } from './entities/student.entity';
 import { Teacher } from './entities/teacher.entity';
-import { RolesService } from '../roles/roles.service';
 import { GendersService } from '../genders/genders.service';
 import { NotFound } from '../core/exceptions';
 import { hash } from 'bcrypt';
+import { PositionsService } from '../positions/positions.service';
+import { PositionEnum } from '../positions/position.enum';
 
 @Injectable()
 export class UsersService {
@@ -21,13 +21,15 @@ export class UsersService {
     private readonly studentRepository: Repository<Student>,
     @InjectRepository(Teacher)
     private readonly teacherRepository: Repository<Teacher>,
-    private readonly roleService: RolesService,
+    private readonly positionService: PositionsService,
     private readonly genderService: GendersService,
   ) {}
   async create(createUserDto: CreateUserDto) {
-    const role = await this.roleService.findById(createUserDto.role.id);
-    if (!role) {
-      throw new NotFound<User>('role');
+    const position = await this.positionService.findById(
+      createUserDto.position.id,
+    );
+    if (!position) {
+      throw new NotFound<User>('position');
     }
 
     const gender = await this.genderService.findById(createUserDto.gender.id);
@@ -39,7 +41,7 @@ export class UsersService {
 
     const user = this.userRepository.create(createUserDto);
     await this.userRepository.save(user);
-    if (createUserDto.role.id === RoleEnum.Teacher) {
+    if (createUserDto.position.id === PositionEnum.Teacher) {
       await this.teacherRepository.save({ user });
     } else {
       await this.studentRepository.save({ user });
@@ -55,7 +57,7 @@ export class UsersService {
       where: { id },
       relations: {
         gender: true,
-        role: true,
+        position: true,
         student: true,
         teacher: true,
       },
@@ -66,17 +68,36 @@ export class UsersService {
     return this.userRepository.findOne({ where: { username } });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    if (updateUserDto.position?.id) {
+      const position = await this.positionService.findById(
+        updateUserDto.position.id,
+      );
+      if (!position) {
+        throw new NotFound<User>('position');
+      }
+    }
+
+    if (updateUserDto.gender.id) {
+      const gender = await this.genderService.findById(updateUserDto.gender.id);
+      if (!gender) {
+        throw new NotFound<User>('gender');
+      }
+    }
+
+    if (updateUserDto.password) {
+      updateUserDto.password = await hash(updateUserDto.password, 12);
+    }
+    await this.userRepository.save({ ...updateUserDto, id });
   }
 
   async remove(id: number) {
     const user = await this.findOne(id);
     await this.userRepository.softRemove({ id });
-    if (user.role.id === RoleEnum.Teacher) {
-      await this.teacherRepository.softRemove({ id: user.role.id });
+    if (user.position.id === PositionEnum.Teacher) {
+      await this.teacherRepository.softRemove({ id: user.position.id });
     } else {
-      await this.studentRepository.softRemove({ id: user.role.id });
+      await this.studentRepository.softRemove({ id: user.position.id });
     }
   }
 }

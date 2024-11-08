@@ -1,6 +1,5 @@
 import { Model } from '../../core/base.entity';
 import { Gender } from '../../genders/entities/gender.entity';
-import { Role } from '../../roles/entities/role.entity';
 import {
   Column,
   Entity,
@@ -10,6 +9,7 @@ import {
 } from 'typeorm';
 import { Teacher } from './teacher.entity';
 import { Student } from './student.entity';
+import { Position } from '../../positions/entities/position.entity';
 
 @Entity()
 export class User extends Model {
@@ -20,13 +20,16 @@ export class User extends Model {
   username: string;
 
   @Column()
+  fullName: string;
+
+  @Column()
   password: string;
 
   @Column()
   dateOfBirth: Date;
 
-  @ManyToOne(() => Role)
-  role: Role;
+  @ManyToOne(() => Position)
+  position: Position;
 
   @ManyToOne(() => Gender)
   gender: Gender;

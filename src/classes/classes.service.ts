@@ -1,26 +1,51 @@
 import { Injectable } from '@nestjs/common';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Class } from './entities/class.entity';
+import { Repository } from 'typeorm';
+import { NotFound } from '../core/exceptions';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class ClassesService {
-  create(createClassDto: CreateClassDto) {
-    return 'This action adds a new class';
+  constructor(
+    @InjectRepository(Class)
+    private readonly classRepository: Repository<Class>,
+  ) {}
+  async create(user: User, createClassDto: CreateClassDto) {
+    await this.classRepository.save({ ...createClassDto, teacher: user });
   }
 
-  findAll() {
-    return `This action returns all classes`;
+  async findAll() {
+    return await this.classRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} class`;
+  async findAllByTeacher(teacherId: number) {
+    return await this.classRepository.find({
+      where: {
+        teacher: { id: teacherId },
+      },
+    });
   }
 
-  update(id: number, updateClassDto: UpdateClassDto) {
-    return `This action updates a #${id} class`;
+  async findOne(id: number) {
+    return await this.classRepository.findOne({ where: { id } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} class`;
+  async update(id: number, updateClassDto: UpdateClassDto) {
+    const classValue = await this.findOne(id);
+    if (!classValue) {
+      throw new NotFound<UpdateClassDto>(undefined, 'Role is not found');
+    }
+    await this.classRepository.save(updateClassDto);
+  }
+
+  async remove(id: number) {
+    const classValue = await this.findOne(id);
+    if (!classValue) {
+      throw new NotFound<UpdateClassDto>(undefined, 'Role is not found');
+    }
+    await this.classRepository.softRemove({ id });
   }
 }

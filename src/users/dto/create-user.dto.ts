@@ -1,12 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { RoleDto } from '../../roles/dto/role.dto';
 import { Type } from 'class-transformer';
 import { ValidateNested } from 'class-validator';
 import { GenderDto } from '../../genders/dto/gender.dto';
+import { PositionDto } from '../../positions/dto/position.dto';
 
 export class CreateUserDto {
   @ApiProperty()
   username: string;
+
+  @ApiProperty()
+  fullName: string;
 
   @ApiProperty()
   password: string;
@@ -14,10 +17,10 @@ export class CreateUserDto {
   @ApiProperty()
   dateOfBirth: Date;
 
-  @ApiProperty({ type: RoleDto })
-  @Type(() => RoleDto)
+  @ApiProperty({ type: PositionDto })
+  @Type(() => PositionDto)
   @ValidateNested()
-  role: RoleDto;
+  position: PositionDto;
 
   @ApiProperty({ type: GenderDto })
   @Type(() => GenderDto)
