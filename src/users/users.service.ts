@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Student } from './entities/student.entity';
@@ -66,6 +66,12 @@ export class UsersService {
 
   findByUsername(username: string) {
     return this.userRepository.findOne({ where: { username } });
+  }
+  findManyByUsernamesAndPosition(usernames: string[], positionId: number) {
+    return this.userRepository.find({
+      where: { username: In(usernames), position: { id: positionId } },
+      relations: { student: true },
+    });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {

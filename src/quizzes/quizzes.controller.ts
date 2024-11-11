@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { QuizzesService } from './quizzes.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
@@ -21,8 +22,8 @@ export class QuizzesController {
   }
 
   @Get()
-  findAll() {
-    return this.quizzesService.findAll();
+  findAll(@Query('classId') classId: number) {
+    return this.quizzesService.findQuizzesForClass(classId);
   }
 
   @Get(':id')
