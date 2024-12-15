@@ -17,6 +17,9 @@ export class Quiz {
   @Column()
   title: string;
 
+  @Column({ nullable: true })
+  startDate?: Date;
+
   @OneToMany(() => Question, (question) => question.quiz)
   questions: Question[];
 

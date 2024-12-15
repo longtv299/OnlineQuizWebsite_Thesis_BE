@@ -1,9 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { CreateAnswerDto } from '../../answers/dto/create-answer.dto';
 import { IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Question } from '../entities/question.entity';
+import { AnswerDto } from '../../answers/dto/answer.dto';
+import { Answer } from '../../answers/entities/answer.entity';
 
-export class CreateQuestionDto {
+export class QuestionDto extends Question {
   @ApiProperty()
   id: number;
 
@@ -13,9 +15,9 @@ export class CreateQuestionDto {
   @ApiPropertyOptional()
   content: string;
 
-  @ApiPropertyOptional({ type: () => [CreateAnswerDto] })
+  @ApiPropertyOptional({ type: () => [AnswerDto] })
   @IsArray()
-  @Type(() => CreateAnswerDto)
+  @Type(() => AnswerDto)
   @ValidateNested()
-  answers: CreateAnswerDto[];
+  answers: Answer[];
 }

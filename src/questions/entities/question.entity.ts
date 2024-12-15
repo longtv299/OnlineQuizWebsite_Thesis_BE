@@ -15,7 +15,7 @@ export class Question extends Model {
   id: number;
 
   @Column()
-  hasAnAnswer: boolean;
+  isChooseOne: boolean;
 
   @Column()
   content: string;
