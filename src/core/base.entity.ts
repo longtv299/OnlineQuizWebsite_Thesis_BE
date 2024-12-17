@@ -1,4 +1,4 @@
-import { CreateDateColumn, DeleteDateColumn, UpdateDateColumn } from 'typeorm';
+import { CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 export class Model {
   @CreateDateColumn({ select: false })
@@ -6,7 +6,4 @@ export class Model {
 
   @UpdateDateColumn({ select: false })
   updatedAt: Date;
-
-  @DeleteDateColumn({ select: false })
-  deletedAt: Date;
 }

@@ -17,10 +17,10 @@ export class Student extends Model {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToMany(() => QuizzesResult, (result) => result.student)
+  @OneToMany('QuizzesResult', (result: QuizzesResult) => result.student)
   quizzesResults: QuizzesResult[];
 
-  @OneToMany(() => StudentAnswer, (answer) => answer.student)
+  @OneToMany('StudentAnswer', (answer: StudentAnswer) => answer.student)
   studentAnswers: StudentAnswer[];
 
   @OneToOne(() => User)

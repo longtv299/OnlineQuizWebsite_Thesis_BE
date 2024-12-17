@@ -20,9 +20,9 @@ export class Question extends Model {
   @Column()
   content: string;
 
-  @ManyToOne(() => Quiz, (quiz) => quiz.questions)
+  @ManyToOne(() => Quiz, (quiz) => quiz.questions, { onDelete: 'CASCADE' })
   quiz: Quiz;
 
-  @OneToMany(() => Answer, (answer) => answer.question)
+  @OneToMany('Answer', (answer: Answer) => answer.question)
   answers: Answer[];
 }

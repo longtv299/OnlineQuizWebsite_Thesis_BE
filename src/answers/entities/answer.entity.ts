@@ -20,12 +20,14 @@ export class Answer extends Model {
   @Column()
   isCorrect: boolean;
 
-  @ManyToOne(() => Question, (question) => question.answers)
+  @ManyToOne(() => Question, (question) => question.answers, {
+    onDelete: 'CASCADE',
+  })
   question: Question;
 
   @OneToMany(
-    () => StudentAnswer,
-    (studentAnswer) => studentAnswer.selectedAnswer,
+    'StudentAnswer',
+    (studentAnswer: StudentAnswer) => studentAnswer.selectedAnswer,
   )
   studentAnswers: StudentAnswer[];
 }

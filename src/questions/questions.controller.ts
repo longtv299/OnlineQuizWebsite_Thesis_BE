@@ -22,7 +22,7 @@ export class QuestionsController {
   }
 
   @Get()
-  findAll(@Query('quizId') quizId: number) {
+  findAllByQuiz(@Query('quizId') quizId: number) {
     return this.questionsService.findAllByQuiz(quizId);
   }
 

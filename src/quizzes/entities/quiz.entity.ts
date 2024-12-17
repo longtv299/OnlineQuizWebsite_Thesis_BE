@@ -20,10 +20,13 @@ export class Quiz {
   @Column({ nullable: true })
   startDate?: Date;
 
-  @OneToMany(() => Question, (question) => question.quiz)
+  @Column()
+  time: number;
+
+  @OneToMany('Question', (question: Question) => question.quiz)
   questions: Question[];
 
-  @OneToMany(() => QuizzesResult, (result) => result.quiz)
+  @OneToMany('QuizzesResult', (result: QuizzesResult) => result.quiz)
   quizzesResults: QuizzesResult[];
 
   @ManyToOne(() => Class)

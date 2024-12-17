@@ -4,7 +4,6 @@ import { UpdateQuestionDto } from './dto/update-question.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from './entities/question.entity';
 import { Repository } from 'typeorm';
-import { Answer } from '../answers/entities/answer.entity';
 import { AnswersService } from '../answers/answers.service';
 
 @Injectable()
@@ -17,29 +16,27 @@ export class QuestionsService {
   create(createDto: CreateQuestionDto) {
     return this.repository.save(createDto);
   }
-  async createMany(createManyDto: CreateQuestionDto[]) {
-    const createdQuestions = await Promise.all(
-      createManyDto.map((e) => this.create(e)),
-    );
-    const createAnswers: Answer[] = [];
-    const updateAnswers: Answer[] = [];
-    createdQuestions.forEach((e) => {
-      const { answers } = e;
-      answers.forEach((a: Answer) => {
-        if (a.id) {
-          updateAnswers.push(a);
-        } else {
-          createAnswers.push({ ...a, question: e });
-        }
-      });
-    });
-    await this.answerService.createMany(createAnswers);
-    console.log(createAnswers);
+  async createMany(quizId: number, createManyDto: CreateQuestionDto[]) {
+    for (const question of createManyDto) {
+      const savedQuestion = (
+        await this.repository.insert({
+          ...question,
+          id: null,
+          quiz: { id: quizId },
+        })
+      ).identifiers[0];
+
+      await this.answerService.createManyInQuestion(
+        savedQuestion.id,
+        question.answers,
+      );
+    }
   }
 
   findAllByQuiz(quizId: number) {
-    this.repository.find({
+    return this.repository.find({
       where: { quiz: { id: quizId } },
+      relations: { answers: true },
     });
   }
 
@@ -56,5 +53,9 @@ export class QuestionsService {
 
   remove(id: number) {
     return this.repository.delete(id);
+  }
+
+  removeByQuizId(quizId: number) {
+    return this.repository.delete({ quiz: { id: quizId } });
   }
 }

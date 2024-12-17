@@ -18,6 +18,6 @@ export class Teacher extends Model {
   @JoinColumn()
   user: User;
 
-  @OneToMany(() => Class, (c) => c.teacher)
+  @OneToMany('Class', (c: Class) => c.teacher)
   classes: Class[];
 }
