@@ -34,9 +34,9 @@ export class User extends Model {
   @ManyToOne(() => Gender)
   gender: Gender;
 
-  @OneToOne(() => Teacher, (teacher) => teacher.user)
+  @OneToOne(() => Teacher, (teacher) => teacher.user, { onDelete: 'CASCADE' })
   teacher: Teacher;
 
-  @OneToOne(() => Student, (student) => student.user)
+  @OneToOne(() => Student, (student) => student.user, { onDelete: 'CASCADE' })
   student: Student;
 }

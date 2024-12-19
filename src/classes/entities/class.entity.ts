@@ -1,6 +1,13 @@
+import { ClassStudent } from '../../class-student/entities/class-student.entity';
 import { Model } from '../../core/base.entity';
 import { Teacher } from '../../users/entities/teacher.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Class extends Model {
@@ -12,4 +19,7 @@ export class Class extends Model {
 
   @ManyToOne(() => Teacher)
   teacher: Teacher;
+
+  @OneToMany(() => ClassStudent, (e) => e.group)
+  classStudent: ClassStudent[];
 }

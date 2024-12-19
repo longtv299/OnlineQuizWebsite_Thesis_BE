@@ -58,7 +58,7 @@ export class QuizzesService {
       ...quiz,
       id: null,
     });
-    const questions = await this.questionService.findAllByQuiz(id);
+    const questions = await this.questionService.findAllByQuizWithCorrect(id);
     await this.questionService.createMany(cloneQuiz.id, questions);
     return cloneQuiz;
   }

@@ -19,12 +19,14 @@ export class AuthService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  async signIn({ username, password }: SignInDto) {
-    const user = await this.usersService.findByUsername(username);
+  async signIn(signInDto: SignInDto) {
+    const { password, ...user } = await this.usersService.findByUsername(
+      signInDto.username,
+    );
     if (!user) {
       throw new NotFound<SignInDto>('username');
     }
-    const isValid = await compare(password, user.password);
+    const isValid = await compare(signInDto.password, password);
     if (!isValid) {
       throw new Incorrect<SignInDto>('password');
     }
@@ -33,7 +35,7 @@ export class AuthService {
       secret: this.configService.get('JWT_SECRET'),
       expiresIn: ms(this.configService.get('JWT_EXPIRES_IN')),
     });
-    await this.cacheManager.set(token, user.id);
+    await this.cacheManager.set(token, user);
     return { token };
   }
   async signOut(token: string) {

@@ -65,7 +65,14 @@ export class UsersService {
   }
 
   findByUsername(username: string) {
-    return this.userRepository.findOne({ where: { username } });
+    return this.userRepository.findOne({
+      where: { username },
+      relations: {
+        position: true,
+        teacher: true,
+        student: true,
+      },
+    });
   }
   findManyByUsernamesAndPosition(usernames: string[], positionId: number) {
     return this.userRepository.find({
@@ -98,12 +105,12 @@ export class UsersService {
   }
 
   async remove(id: number) {
-    const user = await this.findOne(id);
-    await this.userRepository.softRemove({ id });
-    if (user.position.id === PositionEnum.Teacher) {
-      await this.teacherRepository.softRemove({ id: user.position.id });
-    } else {
-      await this.studentRepository.softRemove({ id: user.position.id });
-    }
+    // const user = await this.findOne(id);
+    await this.userRepository.delete(id);
+    // if (user.position.id === PositionEnum.Teacher) {
+    //   await this.teacherRepository.softRemove({ id: user.position.id });
+    // } else {
+    //   await this.studentRepository.softRemove({ id: user.position.id });
+    // }
   }
 }

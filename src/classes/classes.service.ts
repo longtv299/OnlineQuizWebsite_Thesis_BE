@@ -28,6 +28,20 @@ export class ClassesService {
       },
     });
   }
+  async findAllByStudent(userId: number) {
+    const result = await this.classRepository.find({
+      where: {
+        classStudent: {
+          student: {
+            user: {
+              id: userId,
+            },
+          },
+        },
+      },
+    });
+    return result;
+  }
 
   async findOne(id: number) {
     return await this.classRepository.findOne({ where: { id } });
@@ -46,6 +60,6 @@ export class ClassesService {
     if (!classValue) {
       throw new NotFound<UpdateClassDto>(undefined, 'Role is not found');
     }
-    await this.classRepository.softRemove({ id });
+    await this.classRepository.delete(id);
   }
 }

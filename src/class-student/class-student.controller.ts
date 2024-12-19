@@ -1,10 +1,10 @@
 import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ClassUserService } from './class-user.service';
-import { UpdateClassUserDto } from './dto/update-class-user.dto';
+import { ClassStudentService } from './class-student.service';
+import { UpdateClassStudentDto } from './dto/update-class-user.dto';
 
 @Controller('classes')
-export class ClassUserController {
-  constructor(private readonly classUserService: ClassUserService) {}
+export class ClassStudentController {
+  constructor(private readonly classUserService: ClassStudentService) {}
 
   @Get(':id/students')
   findStudentsInClass(@Param('id') id: string) {
@@ -14,9 +14,9 @@ export class ClassUserController {
   @Patch(':id/students')
   addStudentToClass(
     @Param('id') id: number,
-    @Body() updateClassUserDto: UpdateClassUserDto,
+    @Body() updateClassStudentDto: UpdateClassStudentDto,
   ) {
-    return this.classUserService.addStudentToClass(+id, updateClassUserDto);
+    return this.classUserService.addStudentToClass(+id, updateClassStudentDto);
   }
 
   @Delete(':id/students/:studentId')

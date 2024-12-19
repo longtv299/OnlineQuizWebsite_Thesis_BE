@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateClassUserDto } from './dto/update-class-user.dto';
+import { UpdateClassStudentDto } from './dto/update-class-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ClassUser } from './entities/class-user.entity';
+import { ClassStudent } from './entities/class-student.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
-import { PositionEnum } from '../positions/position.enum';
 import { NotFound } from '../core/exceptions';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
-export class ClassUserService {
+export class ClassStudentService {
   constructor(
-    @InjectRepository(ClassUser)
-    private readonly classUserRepository: Repository<ClassUser>,
+    @InjectRepository(ClassStudent)
+    private readonly classUserRepository: Repository<ClassStudent>,
     private readonly userService: UsersService,
   ) {}
   async findStudentsInClass(id: number) {
@@ -34,28 +34,28 @@ export class ClassUserService {
 
   async addStudentToClass(
     classId: number,
-    updateClassUserDto: UpdateClassUserDto,
+    updateClassStudentDto: UpdateClassStudentDto,
   ) {
-    const students = await this.userService.findManyByUsernamesAndPosition(
-      updateClassUserDto.usernames,
-      PositionEnum.Student,
+    const user = await this.userService.findByUsername(
+      updateClassStudentDto.username,
     );
 
-    if (!students?.length) {
-      throw new NotFound<{ usernames: any }>('usernames');
+    if (!user || !user.student?.id) {
+      throw new NotFound<User>('username');
     }
-    const saveData = students.map((e) => {
-      return {
+
+    await this.classUserRepository.upsert(
+      {
         group: { id: classId },
-        student: e.student,
-      } as unknown as Partial<ClassUser>;
-    });
-    await this.classUserRepository.upsert(saveData, {
-      conflictPaths: {
-        group: true,
-        student: true,
+        student: { id: user.student.id },
       },
-    });
+      {
+        conflictPaths: {
+          group: true,
+          student: true,
+        },
+      },
+    );
   }
 
   async removeStudentInClass(classId: number, studentId: number) {

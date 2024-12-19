@@ -19,7 +19,7 @@ import { AuthGuard } from './auth/auth.guard';
 import { CacheModule } from '@nestjs/cache-manager';
 import { CacheConfigService } from './config/cache-config.service';
 import { ProfileModule } from './profile/profile.module';
-import { ClassUserModule } from './class-user/class-user.module';
+import { ClassStudentModule } from './class-student/class-student.module';
 
 @Module({
   imports: [
@@ -49,7 +49,7 @@ import { ClassUserModule } from './class-user/class-user.module';
     AnswersModule,
     QuizzesResultModule,
     UserAnswerModule,
-    ClassUserModule,
+    ClassStudentModule,
   ],
   providers: [
     {

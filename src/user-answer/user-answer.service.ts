@@ -1,11 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserAnswerDto } from './dto/create-user-answer.dto';
-import { UpdateUserAnswerDto } from './dto/update-user-answer.dto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { StudentAnswer } from './entities/user-answer.entity';
 
 @Injectable()
 export class UserAnswerService {
-  create(createUserAnswerDto: CreateUserAnswerDto) {
-    return 'This action adds a new userAnswer';
+  constructor(
+    @InjectRepository(StudentAnswer)
+    private readonly repository: Repository<StudentAnswer>,
+  ) {}
+  create(createDto: CreateUserAnswerDto) {
+    const saveData = createDto.answers.map((e) => {
+      return {
+        student: createDto.student,
+        selectedAnswer: e,
+      };
+    });
+    return this.repository.save(saveData);
   }
 
   findAll() {
@@ -14,10 +26,6 @@ export class UserAnswerService {
 
   findOne(id: number) {
     return `This action returns a #${id} userAnswer`;
-  }
-
-  update(id: number, updateUserAnswerDto: UpdateUserAnswerDto) {
-    return `This action updates a #${id} userAnswer`;
   }
 
   remove(id: number) {

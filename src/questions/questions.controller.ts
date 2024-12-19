@@ -23,7 +23,11 @@ export class QuestionsController {
 
   @Get()
   findAllByQuiz(@Query('quizId') quizId: number) {
-    return this.questionsService.findAllByQuiz(quizId);
+    return this.questionsService.findAllByQuizWithCorrect(quizId);
+  }
+  @Get('question/student')
+  findAllWithoutCorrectByQuiz(@Query('quizId') quizId: number) {
+    return this.questionsService.findAllByQuizWithoutCorrect(quizId);
   }
 
   @Get(':id')

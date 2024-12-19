@@ -11,6 +11,8 @@ import {
 import { ClassesService } from './classes.service';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
+import { PositionEnum } from '../positions/position.enum';
+import { User } from '../users/entities/user.entity';
 
 @Controller('classes')
 export class ClassesController {
@@ -22,8 +24,12 @@ export class ClassesController {
   }
 
   @Get()
-  findAll(@Request() { user }) {
-    return this.classesService.findAllByTeacher(user?.id ?? 0);
+  findAll(@Request() { user }: { user: User }) {
+    if (user.position.id === PositionEnum.Teacher) {
+      return this.classesService.findAllByTeacher(user.id);
+    } else {
+      return this.classesService.findAllByStudent(user.id);
+    }
   }
 
   @Get(':id')

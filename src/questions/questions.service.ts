@@ -18,14 +18,9 @@ export class QuestionsService {
   }
   async createMany(quizId: number, createManyDto: CreateQuestionDto[]) {
     for (const question of createManyDto) {
-      const savedQuestion = (
-        await this.repository.insert({
-          ...question,
-          id: null,
-          quiz: { id: quizId },
-        })
-      ).identifiers[0];
-
+      question.id = null;
+      question.quiz = { id: quizId };
+      const savedQuestion = await this.repository.save(question);
       await this.answerService.createManyInQuestion(
         savedQuestion.id,
         question.answers,
@@ -33,7 +28,20 @@ export class QuestionsService {
     }
   }
 
-  findAllByQuiz(quizId: number) {
+  findAllByQuizWithoutCorrect(quizId: number) {
+    return this.repository.find({
+      select: {
+        answers: {
+          id: true,
+          content: true,
+          studentAnswers: true,
+        },
+      },
+      where: { quiz: { id: quizId } },
+      relations: { answers: true },
+    });
+  }
+  findAllByQuizWithCorrect(quizId: number) {
     return this.repository.find({
       where: { quiz: { id: quizId } },
       relations: { answers: true },
