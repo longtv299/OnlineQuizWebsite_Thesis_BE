@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { QuestionsService } from '../questions/questions.service';
 import { NotFound } from '../core/exceptions';
 import { AnswersService } from '../answers/answers.service';
+import { compare, hash } from 'bcrypt';
 
 @Injectable()
 export class QuizzesService {
@@ -16,14 +17,36 @@ export class QuizzesService {
     private readonly questionService: QuestionsService,
     private readonly answerService: AnswersService,
   ) {}
-  create(createQuizDto: CreateQuizDto) {
-    return this.quizRepository.save(createQuizDto);
+  async create(createDto: CreateQuizDto) {
+    if (createDto.password) {
+      createDto.password = await hash(createDto.password, 12);
+    }
+    return this.quizRepository.save(createDto);
   }
 
   findQuizzesForClass(id: number) {
     return this.quizRepository.find({
+      relations: {
+        questions: {
+          answers: {
+            studentAnswers: {
+              student: true,
+            },
+          },
+        },
+      },
       where: { class: { id } },
     });
+  }
+  findQuizzesByClassAndStudent(classId: number, studentId: number) {
+    const query = this.quizRepository
+      .createQueryBuilder('A')
+      .leftJoinAndSelect('A.questions', 'B')
+      .leftJoinAndSelect('B.answers', 'C')
+      .leftJoinAndSelect('C.studentAnswers', 'D')
+      .leftJoinAndSelect('D.student', 'E', 'E.id = :studentId', { studentId })
+      .andWhere('A.classId = :classId', { classId });
+    return query.getMany();
   }
 
   findOne(id: number) {
@@ -34,6 +57,9 @@ export class QuizzesService {
     if (updateDto.questions) {
       await this.questionService.removeByQuizId(id);
       await this.questionService.createMany(id, updateDto.questions);
+    }
+    if (updateDto.password) {
+      updateDto.password = await hash(updateDto.password, 12);
     }
     return await this.quizRepository.save({
       id,
@@ -61,5 +87,14 @@ export class QuizzesService {
     const questions = await this.questionService.findAllByQuizWithCorrect(id);
     await this.questionService.createMany(cloneQuiz.id, questions);
     return cloneQuiz;
+  }
+  async verifyPassword(id: number, password: string) {
+    const quiz = await this.quizRepository.findOneBy({ id });
+    if (!quiz.password) {
+      return false;
+    }
+    let isValid: boolean = false;
+    isValid = await compare(password, quiz.password);
+    return isValid;
   }
 }

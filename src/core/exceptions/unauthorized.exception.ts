@@ -4,7 +4,7 @@ export class Unauthorized extends UnauthorizedException {
   constructor(message?: string) {
     super({
       statusCode: HttpStatus.UNAUTHORIZED,
-      message: message || 'unauthorized',
+      message: message || 'unauthorized 112312',
     });
   }
 }

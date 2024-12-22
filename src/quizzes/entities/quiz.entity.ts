@@ -18,6 +18,9 @@ export class Quiz {
   title: string;
 
   @Column({ nullable: true })
+  password: string;
+
+  @Column({ nullable: true })
   startDate?: Date;
 
   @Column()

@@ -30,7 +30,7 @@ export class AuthService {
     if (!isValid) {
       throw new Incorrect<SignInDto>('password');
     }
-    const payload = { id: user.id };
+    const payload = user;
     const token = await this.jwtService.signAsync(payload, {
       secret: this.configService.get('JWT_SECRET'),
       expiresIn: ms(this.configService.get('JWT_EXPIRES_IN')),

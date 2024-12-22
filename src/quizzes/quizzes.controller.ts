@@ -7,11 +7,13 @@ import {
   Param,
   Delete,
   Query,
+  Req,
 } from '@nestjs/common';
 import { QuizzesService } from './quizzes.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { QuizDto } from './dto/quiz.dto';
+import { User } from '../users/entities/user.entity';
 
 @Controller('quizzes')
 export class QuizzesController {
@@ -27,13 +29,24 @@ export class QuizzesController {
   }
 
   @Get()
-  findAll(@Query('classId') classId: number) {
-    return this.quizzesService.findQuizzesForClass(classId);
+  findAll(@Req() request: Request, @Query('classId') classId: number) {
+    const user: User | null = request['user'];
+    if (user?.student?.id) {
+      return this.quizzesService.findQuizzesByClassAndStudent(
+        +classId,
+        user.student.id,
+      );
+    }
+    return this.quizzesService.findQuizzesForClass(+classId);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.quizzesService.findOne(+id);
+  }
+  @Get(':id/verify')
+  verifyPassword(@Param('id') id: string, @Query('password') password: string) {
+    return this.quizzesService.verifyPassword(+id, password);
   }
 
   @Patch(':id')
