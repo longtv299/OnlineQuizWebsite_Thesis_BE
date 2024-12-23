@@ -9,7 +9,6 @@ services:
       - mysql:/var/lib/mysql
     ports:
       - 33306:3306
-
   adminer:
     container_name: eng-adminer
     depends_on:
@@ -17,8 +16,11 @@ services:
     image: adminer
     ports:
       - 8088:8080
-    # network_mode: host
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - 6379:6379
+    restart: always
 volumes:
   mysql:
-    external: true
-    name: my-app-data
