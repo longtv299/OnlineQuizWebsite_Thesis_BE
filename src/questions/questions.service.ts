@@ -18,15 +18,13 @@ export class QuestionsService {
     return this.repository.save(createDto);
   }
   async createMany(quizId: number, createManyDto: CreateQuestionDto[]) {
-    for (const question of createManyDto) {
-      const newQuestion = new Question();
-      const quiz = new Quiz();
-      quiz.id = quizId;
-      newQuestion.quiz = quiz;
-      newQuestion.content = question.content
-      newQuestion.isChooseOne = question.isChooseOne
+    for (const question of createManyDto) {     
+      const savedQuestion = await this.repository.save({
+        quiz: {id: quizId},
+        content: question.content,
+        isChooseOne: question.isChooseOne,
+      });
       
-      const savedQuestion = await this.repository.save(newQuestion);
       await this.answerService.createManyInQuestion(
         savedQuestion.id,
         question.answers,

@@ -54,17 +54,19 @@ export class QuizzesService {
   }
 
   async update(id: number, updateDto: UpdateQuizDto) {
+    if (updateDto.password) {
+      updateDto.password = await hash(updateDto.password, 12);
+    }
+    const result = await this.quizRepository.save({
+      id,
+      ...updateDto,
+    });
     if (updateDto.questions) {
       await this.questionService.removeByQuizId(id);
       await this.questionService.createMany(id, updateDto.questions);
     }
-    if (updateDto.password) {
-      updateDto.password = await hash(updateDto.password, 12);
-    }
-    return await this.quizRepository.save({
-      id,
-      ...updateDto,
-    });
+
+    return result;
   }
 
   remove(id: number) {
