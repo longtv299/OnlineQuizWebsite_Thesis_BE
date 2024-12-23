@@ -41,7 +41,11 @@ export class AnswersService {
   }
 
   findOne(id: number) {
-    return this.repository.findOne({ where: { id } });
+    return this.repository.findOne({ where: { id }, relations: {
+      question: {
+        quiz: true,
+      }
+    } });
   }
 
   update(id: number, updateDto: UpdateAnswerDto) {

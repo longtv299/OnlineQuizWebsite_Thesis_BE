@@ -45,6 +45,7 @@ export class QuizzesService {
       .leftJoinAndSelect('B.answers', 'C')
       .leftJoinAndSelect('C.studentAnswers', 'D')
       .leftJoinAndSelect('D.student', 'E', 'E.id = :studentId', { studentId })
+      .leftJoinAndSelect('A.quizzesResults', 'F', 'E.id = F.studentId AND F.quizId = A.id')
       .andWhere('A.classId = :classId', { classId });
     return query.getMany();
   }

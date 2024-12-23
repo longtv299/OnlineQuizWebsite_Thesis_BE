@@ -1,11 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { CreateQuizzesResultDto } from './dto/create-quizzes-result.dto';
 import { UpdateQuizzesResultDto } from './dto/update-quizzes-result.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { QuizzesResult } from './entities/quizzes-result.entity';
 
 @Injectable()
 export class QuizzesResultService {
+  constructor(
+      @InjectRepository(QuizzesResult)
+      private readonly repository: Repository<QuizzesResult>,
+    ) {}
   create(createQuizzesResultDto: CreateQuizzesResultDto) {
-    return 'This action adds a new quizzesResult';
+    return this.repository.save(createQuizzesResultDto)
   }
 
   findAll() {
