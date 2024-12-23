@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from './entities/question.entity';
 import { Repository } from 'typeorm';
 import { AnswersService } from '../answers/answers.service';
+import { Quiz } from '../quizzes/entities/quiz.entity';
 
 @Injectable()
 export class QuestionsService {
@@ -18,9 +19,14 @@ export class QuestionsService {
   }
   async createMany(quizId: number, createManyDto: CreateQuestionDto[]) {
     for (const question of createManyDto) {
-      question.id = null;
-      question.quiz = { id: quizId };
-      const savedQuestion = await this.repository.save(question);
+      const newQuestion = new Question();
+      const quiz = new Quiz();
+      quiz.id = quizId;
+      newQuestion.quiz = quiz;
+      newQuestion.content = question.content
+      newQuestion.isChooseOne = question.isChooseOne
+      
+      const savedQuestion = await this.repository.save(newQuestion);
       await this.answerService.createManyInQuestion(
         savedQuestion.id,
         question.answers,

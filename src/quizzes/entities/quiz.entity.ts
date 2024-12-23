@@ -23,8 +23,8 @@ export class Quiz {
   @Column({ nullable: true })
   startDate?: Date;
 
-  @Column()
-  time: number;
+  @Column({ nullable: true })
+  time? : number;
 
   @OneToMany('Question', (question: Question) => question.quiz)
   questions: Question[];

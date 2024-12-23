@@ -26,7 +26,7 @@ export class AnswersService {
         isCorrect: a.isCorrect,
       } as Answer;
     });
-    return this.repository.insert(saveAnswers);
+    return this.repository.save(saveAnswers);
   }
 
   findAllByQuestion(questionId: number) {
