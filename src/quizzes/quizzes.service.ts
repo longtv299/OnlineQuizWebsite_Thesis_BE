@@ -26,26 +26,16 @@ export class QuizzesService {
 
   findQuizzesForClass(id: number) {
     return this.quizRepository.find({
-      relations: {
-        questions: {
-          answers: {
-            studentAnswers: {
-              student: true,
-            },
-          },
-        },
-      },
       where: { class: { id } },
     });
   }
   findQuizzesByClassAndStudent(classId: number, studentId: number) {
     const query = this.quizRepository
       .createQueryBuilder('A')
-      .leftJoinAndSelect('A.questions', 'B')
-      .leftJoinAndSelect('B.answers', 'C')
-      .leftJoinAndSelect('C.studentAnswers', 'D')
-      .leftJoinAndSelect('D.student', 'E', 'E.id = :studentId', { studentId })
-      .andWhere('A.classId = :classId', { classId });
+      .leftJoinAndSelect('A.quizzesResults', 'B')
+      .leftJoin('B.student', 'C', 'C.id = :studentId')
+      .andWhere('A.classId = :classId')
+      .setParameters({ studentId, classId });
     return query.getMany();
   }
 
@@ -53,11 +43,21 @@ export class QuizzesService {
     return this.quizRepository.findOne({ where: { id } });
   }
 
-  async update(id: number, updateDto: UpdateQuizDto) {
-    if (updateDto.questions) {
-      await this.questionService.removeByQuizId(id);
-      await this.questionService.createMany(id, updateDto.questions);
+  async findOneWithoutAnswer(id: number) {
+    const quiz = await this.findOne(id);
+    if (!quiz) {
+      throw new NotFound<Quiz>(undefined, 'Not found');
     }
+    const { questions, ...detail } = quiz;
+    questions.forEach((q) => {
+      console.log(q);
+    });
+    console.log(questions);
+
+    return quiz;
+  }
+
+  async update(id: number, updateDto: UpdateQuizDto) {
     if (updateDto.password) {
       updateDto.password = await hash(updateDto.password, 12);
     }

@@ -13,6 +13,9 @@ export class QuizzesResult {
   @ManyToOne(() => Quiz)
   quiz: Quiz;
 
+  @Column('json', { nullable: true })
+  answers: any;
+
   @Column()
   score: number;
 }

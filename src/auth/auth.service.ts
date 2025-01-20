@@ -20,18 +20,18 @@ export class AuthService {
   ) {}
 
   async signIn(signInDto: SignInDto) {
-    const { password, ...user } = await this.usersService.findByUsername(
-      signInDto.username,
-    );
-    if (!user) {
+    const account = await this.usersService.findByUsername(signInDto.username);
+
+    if (!account) {
       throw new NotFound<SignInDto>('username');
     }
+    const { password, ...user } = account;
     const isValid = await compare(signInDto.password, password);
     if (!isValid) {
       throw new Incorrect<SignInDto>('password');
     }
-    const payload = user;
-    const token = await this.jwtService.signAsync(payload, {
+
+    const token = await this.jwtService.signAsync(user, {
       secret: this.configService.get('JWT_SECRET'),
       expiresIn: ms(this.configService.get('JWT_EXPIRES_IN')),
     });

@@ -44,9 +44,15 @@ export class QuizzesController {
   findOne(@Param('id') id: string) {
     return this.quizzesService.findOne(+id);
   }
+
   @Get(':id/verify')
   verifyPassword(@Param('id') id: string, @Query('password') password: string) {
     return this.quizzesService.verifyPassword(+id, password);
+  }
+
+  @Get(':id/only-question')
+  findOneWithoutAnswer(@Param('id') id: string) {
+    return this.quizzesService.findOneWithoutAnswer(+id);
   }
 
   @Patch(':id')

@@ -26,7 +26,8 @@ export class Quiz {
   @Column()
   time: number;
 
-  @OneToMany('Question', (question: Question) => question.quiz)
+  // @OneToMany('Question', (question: Question) => question.quiz)
+  @Column('json', { nullable: true })
   questions: Question[];
 
   @OneToMany('QuizzesResult', (result: QuizzesResult) => result.quiz)
