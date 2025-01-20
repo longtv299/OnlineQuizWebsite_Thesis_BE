@@ -26,7 +26,7 @@ export class AnswersService {
         isCorrect: a.isCorrect,
       } as Answer;
     });
-    return this.repository.insert(saveAnswers);
+    return this.repository.save(saveAnswers);
   }
 
   findAllByQuestion(questionId: number) {
@@ -41,7 +41,11 @@ export class AnswersService {
   }
 
   findOne(id: number) {
-    return this.repository.findOne({ where: { id } });
+    return this.repository.findOne({ where: { id }, relations: {
+      question: {
+        quiz: true,
+      }
+    } });
   }
 
   update(id: number, updateDto: UpdateAnswerDto) {

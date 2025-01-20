@@ -61,10 +61,16 @@ export class QuizzesService {
     if (updateDto.password) {
       updateDto.password = await hash(updateDto.password, 12);
     }
-    return await this.quizRepository.save({
+    const result = await this.quizRepository.save({
       id,
       ...updateDto,
     });
+    if (updateDto.questions) {
+      await this.questionService.removeByQuizId(id);
+      await this.questionService.createMany(id, updateDto.questions);
+    }
+
+    return result;
   }
 
   remove(id: number) {
@@ -84,6 +90,7 @@ export class QuizzesService {
       ...quiz,
       id: null,
     });
+
     const questions = await this.questionService.findAllByQuizWithCorrect(id);
     await this.questionService.createMany(cloneQuiz.id, questions);
     return cloneQuiz;
