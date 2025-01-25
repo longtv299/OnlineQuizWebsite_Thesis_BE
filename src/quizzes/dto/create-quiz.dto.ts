@@ -10,7 +10,8 @@ import {
 } from 'class-validator';
 import { Class } from '../../classes/entities/class.entity';
 import { ClassDto } from '../../classes/dto/class.dto';
-import { QuestionDto } from '../../questions/dto/question.dto';
+import { IdentityDto } from '../../core/identity.dto';
+import { Question } from '../domain/question';
 
 export class CreateQuizDto {
   @ApiProperty({ type: String })
@@ -35,9 +36,9 @@ export class CreateQuizDto {
   @ValidateNested()
   class: Class;
 
-  @ApiProperty({ type: () => [QuestionDto] })
+  @ApiProperty({ type: () => [IdentityDto] })
   @IsArray()
-  @Type(() => QuestionDto)
+  @Type(() => IdentityDto)
   @ValidateNested()
-  questions?: QuestionDto[];
+  questions?: Question[];
 }

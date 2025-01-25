@@ -1,5 +1,4 @@
 import { Class } from '../../classes/entities/class.entity';
-import { Question } from '../../questions/entities/question.entity';
 import { QuizzesResult } from '../../quizzes-result/entities/quizzes-result.entity';
 import {
   Column,
@@ -8,6 +7,8 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Question } from '../domain/question';
+import { StudentAnswer } from '../../user-answer/entities/user-answer.entity';
 
 @Entity()
 export class Quiz {
@@ -24,14 +25,19 @@ export class Quiz {
   startDate?: Date;
 
   @Column({ nullable: true })
-  time? : number;
+  time?: number;
 
-  // @OneToMany('Question', (question: Question) => question.quiz)
+  @Column({ nullable: true })
+  scoreMethod?: 1 | 2 | 3;
+
   @Column('json', { nullable: true })
   questions: Question[];
 
   @OneToMany('QuizzesResult', (result: QuizzesResult) => result.quiz)
   quizzesResults: QuizzesResult[];
+
+  @OneToMany('StudentAnswer', (result: StudentAnswer) => result.quiz)
+  studentAnswers: StudentAnswer[];
 
   @ManyToOne(() => Class)
   class: Class;

@@ -1,10 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, ValidateNested } from 'class-validator';
-import { AnswerDto } from '../../answers/dto/answer.dto';
-import { Answer } from '../../answers/entities/answer.entity';
 import { StudentDto } from '../../users/dto/student.dto';
 import { Student } from '../../users/entities/student.entity';
+import { IdentityDto } from '../../core/identity.dto';
+import { Quiz } from '../../quizzes/entities/quiz.entity';
+import { StudentQuizAnswer } from '../../quizzes/domain/question';
 
 export class CreateUserAnswerDto {
   @ApiProperty({ type: () => StudentDto })
@@ -12,9 +13,11 @@ export class CreateUserAnswerDto {
   @ValidateNested()
   student: Student;
 
-  @ApiProperty({ type: () => [AnswerDto] })
-  @Type(() => AnswerDto)
+  @ApiProperty({ type: () => IdentityDto })
+  @Type(() => IdentityDto)
   @ValidateNested()
+  quiz: Quiz;
+
   @IsArray()
-  answers: Answer[];
+  studentQuizAnswer: StudentQuizAnswer[];
 }

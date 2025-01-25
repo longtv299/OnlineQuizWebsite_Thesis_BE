@@ -1,21 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { CreateQuizDto } from './dto/create-quiz.dto';
-import { UpdateQuizDto } from './dto/update-quiz.dto';
+import { CreateQuizDto } from '../dto/create-quiz.dto';
+import { UpdateQuizDto } from '../dto/update-quiz.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Quiz } from './entities/quiz.entity';
+import { Quiz } from '../entities/quiz.entity';
 import { Repository } from 'typeorm';
-import { QuestionsService } from '../questions/questions.service';
-import { NotFound } from '../core/exceptions';
-import { AnswersService } from '../answers/answers.service';
+import { NotFound } from '../../core/exceptions';
 import { compare, hash } from 'bcrypt';
+import { Question } from '../domain/question';
 
 @Injectable()
 export class QuizzesService {
   constructor(
     @InjectRepository(Quiz)
     private readonly quizRepository: Repository<Quiz>,
-    private readonly questionService: QuestionsService,
-    private readonly answerService: AnswersService,
   ) {}
   async create(createDto: CreateQuizDto) {
     if (createDto.password) {
@@ -32,7 +29,7 @@ export class QuizzesService {
   findQuizzesByClassAndStudent(classId: number, studentId: number) {
     const query = this.quizRepository
       .createQueryBuilder('A')
-      .leftJoinAndSelect('A.quizzesResults', 'B')
+      .leftJoinAndSelect('A.studentAnswers', 'B')
       .leftJoin('B.student', 'C', 'C.id = :studentId')
       .andWhere('A.classId = :classId')
       .setParameters({ studentId, classId });
@@ -49,12 +46,12 @@ export class QuizzesService {
       throw new NotFound<Quiz>(undefined, 'Not found');
     }
     const { questions, ...detail } = quiz;
-    questions.forEach((q) => {
-      console.log(q);
-    });
-    console.log(questions);
+    const quizResponse = detail;
 
-    return quiz;
+    Object.assign(quizResponse, {
+      questions: questions.map((e) => new Question(e)),
+    });
+    return quizResponse;
   }
 
   async update(id: number, updateDto: UpdateQuizDto) {
@@ -65,10 +62,6 @@ export class QuizzesService {
       id,
       ...updateDto,
     });
-    if (updateDto.questions) {
-      await this.questionService.removeByQuizId(id);
-      await this.questionService.createMany(id, updateDto.questions);
-    }
 
     return result;
   }
@@ -91,8 +84,6 @@ export class QuizzesService {
       id: null,
     });
 
-    const questions = await this.questionService.findAllByQuizWithCorrect(id);
-    await this.questionService.createMany(cloneQuiz.id, questions);
     return cloneQuiz;
   }
   async verifyPassword(id: number, password: string) {

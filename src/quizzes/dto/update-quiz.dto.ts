@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateQuizDto } from './create-quiz.dto';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsString,
@@ -9,11 +9,12 @@ import {
   IsArray,
   IsOptional,
   IsNumber,
+  IsNotEmpty,
 } from 'class-validator';
 import { ClassDto } from '../../classes/dto/class.dto';
 import { Class } from '../../classes/entities/class.entity';
-import { QuestionDto } from '../../questions/dto/question.dto';
-import { Question } from '../../questions/entities/question.entity';
+import { IdentityDto } from '../../core/identity.dto';
+import { Question } from '../domain/question';
 
 export class UpdateQuizDto extends PartialType(CreateQuizDto) {
   @ApiPropertyOptional({ type: String })
@@ -34,14 +35,19 @@ export class UpdateQuizDto extends PartialType(CreateQuizDto) {
   @IsNumber()
   time: number;
 
+  @ApiProperty({ enum: [1, 2, 3] })
+  @IsNotEmpty()
+  @IsNumber()
+  scoreMethod: 1 | 2 | 3;
+
   @ApiPropertyOptional({ type: () => ClassDto })
   @Type(() => ClassDto)
   @ValidateNested()
   class?: Class;
 
-  @ApiPropertyOptional({ type: () => [QuestionDto] })
+  @ApiPropertyOptional({ type: () => [IdentityDto] })
   @IsArray()
-  @Type(() => QuestionDto)
+  @Type(() => IdentityDto)
   @ValidateNested()
   questions?: Question[];
 }
