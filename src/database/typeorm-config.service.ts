@@ -9,7 +9,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
     return {
-      type: 'mysql',
+      type: this.configService.get('DATABASE_TYPE'),
       host: this.configService.get('MYSQL_HOST'),
       port: this.configService.get('MYSQL_PORT'),
       username: this.configService.get('MYSQL_USER'),

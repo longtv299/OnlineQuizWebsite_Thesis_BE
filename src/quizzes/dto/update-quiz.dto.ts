@@ -40,6 +40,17 @@ export class UpdateQuizDto extends PartialType(CreateQuizDto) {
   @IsNumber()
   scoreMethod: 1 | 2 | 3;
 
+  @ApiPropertyOptional({ enum: [1, 2, 3] })
+  @IsOptional()
+  @IsNumber()
+  pWrongQuestion?: number;
+
+  
+  @ApiPropertyOptional({ enum: [1, 2, 3] })
+  @IsOptional()
+  @IsNumber()
+  WrongOption?: number;
+
   @ApiPropertyOptional({ type: () => ClassDto })
   @Type(() => ClassDto)
   @ValidateNested()

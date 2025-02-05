@@ -21,9 +21,11 @@ async function bootstrap() {
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, documentFactory);
-
-  await app.setGlobalPrefix('api').listen(process.env.PORT ?? 3000);
+  
+  const port = process.env.PORT ?? 3000;
+  await app.setGlobalPrefix('api').listen(port);
   console.clear();
-  console.log('view docs at: http://localhost:3000/docs');
+  
+  console.log(`view docs at: http://localhost:${port}/docs`);
 }
 bootstrap();

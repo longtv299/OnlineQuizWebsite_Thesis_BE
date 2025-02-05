@@ -5,7 +5,7 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 config({ path: '.env' });
 
 export const AppDataSource = new DataSource({
-  type: 'mysql',
+  type: process.env.DATABASE_TYPE,
   host: process.env.MYSQL_HOST,
   port: parseInt(process.env.MYSQL_PORT, 10) || 3306,
   username: process.env.MYSQL_USER,

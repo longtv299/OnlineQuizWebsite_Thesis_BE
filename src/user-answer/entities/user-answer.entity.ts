@@ -11,6 +11,9 @@ export class StudentAnswer {
   @PrimaryColumn()
   quizId: number;
 
+  @Column('float',{ nullable: true })
+  score?: number;
+
   @ManyToOne(() => Student)
   student: Student;
 

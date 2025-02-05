@@ -10,7 +10,6 @@ import configuration from './config/configuration';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './database/typeorm-config.service';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { QuizzesResultModule } from './quizzes-result/quizzes-result.module';
 import { UserAnswerModule } from './user-answer/user-answer.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
@@ -43,7 +42,6 @@ import { ClassStudentModule } from './class-student/class-student.module';
     UsersModule,
     ClassesModule,
     QuizzesModule,
-    QuizzesResultModule,
     UserAnswerModule,
     ClassStudentModule,
   ],

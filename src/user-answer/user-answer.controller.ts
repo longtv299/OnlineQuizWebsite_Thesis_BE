@@ -11,9 +11,9 @@ export class UserAnswerController {
     return this.userAnswerService.create(createDto);
   }
 
-  @Get()
-  findAll() {
-    return this.userAnswerService.findAll();
+  @Get('find-many/by-class/:classId')
+  findByClass(@Param('classId') classId: number) {
+    return this.userAnswerService.findByClass(+classId);
   }
 
   @Get(':id')

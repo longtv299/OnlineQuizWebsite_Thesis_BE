@@ -1,5 +1,6 @@
 export interface ConfigType {
   PORT: number;
+  DATABASE_TYPE: string;
   MYSQL_HOST: string;
   MYSQL_PORT: number;
   MYSQL_ROOT_PASSWORD: string;
