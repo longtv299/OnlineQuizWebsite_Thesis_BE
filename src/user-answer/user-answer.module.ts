@@ -6,10 +6,7 @@ import { StudentAnswer } from './entities/user-answer.entity';
 import { QuizzesModule } from '../quizzes/quizzes.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([StudentAnswer]),
-    QuizzesModule,
-  ],
+  imports: [TypeOrmModule.forFeature([StudentAnswer]), QuizzesModule],
   controllers: [UserAnswerController],
   providers: [UserAnswerService],
 })

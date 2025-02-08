@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { UserAnswerService } from './user-answer.service';
 import { CreateUserAnswerDto } from './dto/create-user-answer.dto';
 
@@ -16,8 +16,11 @@ export class UserAnswerController {
     return this.userAnswerService.findByClass(+classId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userAnswerService.findOne(+id);
+  @Get('find-one')
+  findOne(
+    @Query('studentId') studentId: string,
+    @Query('quizId') quizId: string,
+  ) {
+    return this.userAnswerService.findOne(+studentId, +quizId);
   }
 }

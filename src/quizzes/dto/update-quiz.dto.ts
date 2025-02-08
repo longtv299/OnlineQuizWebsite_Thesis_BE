@@ -45,7 +45,6 @@ export class UpdateQuizDto extends PartialType(CreateQuizDto) {
   @IsNumber()
   pWrongQuestion?: number;
 
-  
   @ApiPropertyOptional({ enum: [1, 2, 3] })
   @IsOptional()
   @IsNumber()
