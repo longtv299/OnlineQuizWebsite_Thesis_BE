@@ -17,6 +17,8 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { CacheConfigService } from './config/cache-config.service';
 import { ProfileModule } from './profile/profile.module';
 import { ClassStudentModule } from './class-student/class-student.module';
+import './core/excel';
+import './core/date.extension';
 
 @Module({
   imports: [

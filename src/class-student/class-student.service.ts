@@ -3,7 +3,7 @@ import { UpdateClassStudentDto } from './dto/update-class-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClassStudent } from './entities/class-student.entity';
 import { Repository } from 'typeorm';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/services/users.service';
 import { NotFound } from '../core/exceptions';
 import { User } from '../users/entities/user.entity';
 

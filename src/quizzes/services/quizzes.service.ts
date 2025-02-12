@@ -37,7 +37,10 @@ export class QuizzesService {
   }
 
   findOne(id: number) {
-    return this.quizRepository.findOne({ where: { id } });
+    return this.quizRepository.findOne({
+      relations: { class: true },
+      where: { id },
+    });
   }
 
   async findOneWithoutAnswer(id: number) {

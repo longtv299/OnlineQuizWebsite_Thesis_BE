@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { GendersService } from '../genders/genders.service';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/services/users.service';
 import { UpdateProfileDto } from './update-profile.dto';
 
 @Injectable()

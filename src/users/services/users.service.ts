@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { UpdateUserDto } from '../dto/update-user.dto';
 import { In, Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { User } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Student } from './entities/student.entity';
-import { Teacher } from './entities/teacher.entity';
-import { GendersService } from '../genders/genders.service';
-import { NotFound } from '../core/exceptions';
+import { Student } from '../entities/student.entity';
+import { Teacher } from '../entities/teacher.entity';
+import { GendersService } from '../../genders/genders.service';
+import { NotFound } from '../../core/exceptions';
 import { hash } from 'bcrypt';
-import { PositionsService } from '../positions/positions.service';
-import { PositionEnum } from '../positions/position.enum';
+import { PositionsService } from '../../positions/positions.service';
+import { PositionEnum } from '../../positions/position.enum';
 
 @Injectable()
 export class UsersService {

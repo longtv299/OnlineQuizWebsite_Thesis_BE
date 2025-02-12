@@ -12,6 +12,9 @@ import {
 import { difference, groupBy, intersection } from 'lodash';
 import { Student } from '../users/entities/student.entity';
 import { Quiz } from '../quizzes/entities/quiz.entity';
+import { ExcelUtil } from '../core/excel';
+import { center, left, mediumBold, SheetConfig } from '../core/excel/types';
+import { StudentsService } from '../users/services/students.service';
 
 @Injectable()
 export class UserAnswerService {
@@ -19,6 +22,7 @@ export class UserAnswerService {
     @InjectRepository(StudentAnswer)
     private readonly repository: Repository<StudentAnswer>,
     private readonly quizzesService: QuizzesService,
+    private readonly studentsService: StudentsService,
   ) {}
   async create(createDto: CreateUserAnswerDto) {
     const quizDetail = await this.quizzesService.findOne(createDto.quiz.id);
@@ -251,7 +255,131 @@ export class UserAnswerService {
       .getOne();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} userAnswer`;
+  async exportByQuizId(quizId: number) {
+    const quiz = await this.quizzesService.findOne(quizId);
+    const students: any[] = await this.studentsService.findByClass(
+      quiz.class.id,
+    );
+    const data = await this.repository.find({
+      relations: {
+        student: {
+          user: true,
+        },
+        quiz: true,
+      },
+      where: {
+        quizId,
+      },
+    });
+    students.forEach((s: Student & { score?: any }) => {
+      s.score = data.find((d) => d.studentId === s.id) ?? '';
+    });
+
+    const exporter = new ExcelUtil();
+    await exporter.fillToBlank({
+      sheets: [{ students }].map<SheetConfig>((e) => ({
+        mergeAndCenterCells: [[1, 1, 1, 4]],
+        name: 'Sheet 1',
+        rowStart: 3,
+        commonCellDataStyle: { alignment: left },
+        columns: [
+          {
+            col: 1,
+            code: 'stt',
+            header: 'No.',
+            cellDataStyle: { alignment: center },
+          },
+          {
+            col: 2,
+            code: 'user.fullName',
+            header: 'Full name',
+            width: 60,
+          },
+          {
+            col: 3,
+            code: 'classStudents.0.group.name',
+            header: 'Class',
+            width: 30,
+          },
+          { col: 4, code: 'score', header: 'Score', width: 20 },
+        ],
+        fillSpecCell: [
+          {
+            cell: [1, 1],
+            value: `Result of Quiz: ${quiz.title}`,
+            style: { font: mediumBold },
+          },
+        ],
+        data: e.students,
+      })),
+    });
+    return exporter.writeFile();
+  }
+  async exportByStudent(studentId: number) {
+    const student = await this.studentsService.findOne(studentId);
+    const data = await this.findResultByStudent(studentId);
+
+    const exporter = new ExcelUtil();
+    await exporter.fillToBlank({
+      sheets: [{ data }].map<SheetConfig>((e) => ({
+        mergeAndCenterCells: [[1, 1, 1, 4]],
+        name: 'Sheet 1',
+        rowStart: 3,
+        commonCellDataStyle: { alignment: left },
+        columns: [
+          {
+            col: 1,
+            code: 'stt',
+            header: 'No.',
+            cellDataStyle: { alignment: center },
+          },
+          {
+            col: 2,
+            code: 'quiz.class.name',
+            header: 'Class',
+            width: 60,
+          },
+          {
+            col: 3,
+            code: 'quiz.title',
+            header: 'Quiz',
+            width: 30,
+          },
+          { col: 4, code: 'score', header: 'Score', width: 20 },
+        ],
+        fillSpecCell: [
+          {
+            cell: [1, 1],
+            value: `Result of Student: ${student.user.fullName}`,
+            style: { font: mediumBold },
+          },
+        ],
+        data: e.data,
+      })),
+    });
+    return exporter.writeFile();
+  }
+
+  async findResultByStudent(studentId: number) {
+    const result = await this.repository.find({
+      relations: {
+        quiz: {
+          class: true,
+        },
+      },
+      where: {
+        studentId,
+      },
+    });
+    return result.map((e) => {
+      return {
+        quiz: {
+          id: e.quiz.id,
+          class: { name: e.quiz.class.name },
+          title: e.quiz.title,
+        },
+        score: e.score,
+      };
+    });
   }
 }
