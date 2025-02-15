@@ -24,8 +24,14 @@ export class UserAnswerService {
     private readonly quizzesService: QuizzesService,
     private readonly studentsService: StudentsService,
   ) {}
-  async create(createDto: CreateUserAnswerDto) {
+  async create(studentId: number, createDto: CreateUserAnswerDto) {
     const quizDetail = await this.quizzesService.findOne(createDto.quiz.id);
+    // Lưu thời gian hoàn thành
+    await this.repository.update({
+      quizId: createDto.quiz.id, studentId
+    }, {
+      resolveAt: new Date()
+    })
     let score = 0;
     // Tính điểm theo các phương thức được xác định trong đề
     switch (quizDetail.scoreMethod) {
@@ -49,7 +55,24 @@ export class UserAnswerService {
         );
         break;
     }
-    return await this.repository.save({ ...createDto, score });
+    return await this.repository.save({ ...createDto, student: {id: studentId}, score });
+  }
+
+  async start(studentId: number, quizId: number) {
+    // API này chỉ chạy 1 lần duy nhất
+    if (!studentId) {
+      return
+    }
+    // Kiểm tra đã có bản ghi kết quả chưa?
+    const isCreated = await this.repository.exists({
+      where: { studentId, quizId }
+    })
+    if (isCreated) {
+      return
+    }
+    return await this.repository.insert({
+      quizId, studentId, startAt: new Date()
+    })
   }
 
   // Chỉ tính điểm các câu trả lời đúng

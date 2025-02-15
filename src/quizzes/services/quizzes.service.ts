@@ -3,8 +3,8 @@ import { CreateQuizDto } from '../dto/create-quiz.dto';
 import { UpdateQuizDto } from '../dto/update-quiz.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Quiz } from '../entities/quiz.entity';
-import { Repository } from 'typeorm';
-import { NotFound } from '../../core/exceptions';
+import { IsNull, Not, Repository } from 'typeorm';
+import { Invalid, NotFound } from '../../core/exceptions';
 import { compare, hash } from 'bcrypt';
 import { Question } from '../domain/question';
 
@@ -26,6 +26,7 @@ export class QuizzesService {
       where: { class: { id } },
     });
   }
+
   findQuizzesByClassAndStudent(classId: number, studentId: number) {
     const query = this.quizRepository
       .createQueryBuilder('A')
@@ -58,6 +59,17 @@ export class QuizzesService {
   }
 
   async update(id: number, updateDto: UpdateQuizDto) {
+    // Nếu quiz đã có người giải thì không được phép sửa
+    const isDone = await this.quizRepository.exists({
+      where: {
+        studentAnswers: {
+          studentId: Not(IsNull())
+        }
+      }
+    })
+    if (isDone) {
+      throw new Invalid<Quiz>(undefined, 'Cannot update quiz')
+    }
     if (updateDto.password) {
       updateDto.password = await hash(updateDto.password, 12);
     }
@@ -94,6 +106,10 @@ export class QuizzesService {
     if (!quiz.password) {
       return false;
     }
+    const curDate = new Date()
+    // Kiểm tra đã đến ngày làm bài chưa? Nếu chưa thì khôg được làm
+    console.log(quiz.startDate, curDate, curDate > quiz.startDate);
+    
     let isValid: boolean = false;
     isValid = await compare(password, quiz.password);
     return isValid;

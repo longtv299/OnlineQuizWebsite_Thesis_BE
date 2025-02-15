@@ -22,4 +22,12 @@ export class StudentAnswer {
 
   @Column('json', { nullable: true })
   studentQuizAnswer: Question[];
+
+  // Timestamp
+  @Column({nullable: true})
+  startAt: Date
+  
+  // Timestamp
+  @Column({nullable: true})
+  resolveAt: Date
 }
