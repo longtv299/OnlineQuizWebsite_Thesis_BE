@@ -236,7 +236,7 @@ export class UserAnswerService {
     const studentResults = await query.getMany();
 
     const res = Object.values(groupBy(studentResults, 'studentId')).map(
-      (studentResults) => {
+      (studentResults: any) => {
         return studentResults.reduce((p, c) => {
           p.id = c.studentId;
           p.user = c.student.user;
