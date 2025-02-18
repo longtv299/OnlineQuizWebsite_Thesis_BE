@@ -4,4 +4,5 @@ export interface ExceptionType<T> {
   statusCode: HttpStatus;
   message?: string;
   error: { [k in keyof T]: string };
+  detail?: any;
 }

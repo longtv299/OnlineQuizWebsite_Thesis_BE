@@ -49,7 +49,10 @@ export class UserAnswerService {
         );
         break;
     }
-    return await this.repository.save({ ...createDto, score });
+    return await this.repository.save({
+      ...createDto,
+      score: Math.round(score * 100) / 100,
+    });
   }
 
   // Chỉ tính điểm các câu trả lời đúng
@@ -147,7 +150,7 @@ export class UserAnswerService {
       (pre: number, cur: QuestionWithAnswer, index: number) => {
         if (cur.isChooseOne) {
           // cộng điểm khi trả lời đúng
-          if (cur.answers[studentQuizAnswer[index].selectedAnswer]) {
+          if (cur.correctAnswer === studentQuizAnswer[index].selectedAnswer) {
             return pre + scorePerQuestion;
           } else {
             // trừ điểm khi trả lời sai
@@ -160,7 +163,7 @@ export class UserAnswerService {
             cur.correctAnswer,
             studentQuizAnswer[index].selectedAnswer,
           );
-          const wrongAnswers = cur.answers.length - correctAnswer.length;
+          const wrongAnswers = cur.answers.length - cur.correctAnswer.length;
 
           if (correctAnswer.length === cur.correctAnswer.length) {
             pre += scorePerQuestion;
@@ -176,8 +179,12 @@ export class UserAnswerService {
           );
           if (selectedIncorrect?.length) {
             isFullScore = false;
-            pre -= (selectedIncorrect.length * pWrongOptions) / wrongAnswers;
+            pre =
+              pre -
+              (selectedIncorrect.length * pWrongOptions * scorePerQuestion) /
+                wrongAnswers;
           }
+
           return pre;
         }
       },
@@ -238,8 +245,8 @@ export class UserAnswerService {
     return res;
   }
 
-  findOne(studentId: number, quizId: number) {
-    return this.repository
+  async findOne(studentId: number, quizId: number) {
+    const result = await this.repository
       .createQueryBuilder('A')
       .setFindOptions({
         where: {
@@ -253,6 +260,8 @@ export class UserAnswerService {
         relationLoadStrategy: 'query',
       })
       .getOne();
+
+    return result;
   }
 
   async exportByQuizId(quizId: number) {
@@ -272,7 +281,7 @@ export class UserAnswerService {
       },
     });
     students.forEach((s: Student & { score?: any }) => {
-      s.score = data.find((d) => d.studentId === s.id) ?? '';
+      s.score = data.find((d) => d.studentId === s.id)?.score ?? '';
     });
 
     const exporter = new ExcelUtil();

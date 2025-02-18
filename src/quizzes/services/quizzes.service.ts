@@ -5,7 +5,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Quiz } from '../entities/quiz.entity';
 import { Repository } from 'typeorm';
 import { NotFound } from '../../core/exceptions';
-import { compare, hash } from 'bcrypt';
 import { Question } from '../domain/question';
 
 @Injectable()
@@ -15,9 +14,6 @@ export class QuizzesService {
     private readonly quizRepository: Repository<Quiz>,
   ) {}
   async create(createDto: CreateQuizDto) {
-    if (createDto.password) {
-      createDto.password = await hash(createDto.password, 12);
-    }
     return this.quizRepository.save(createDto);
   }
 
@@ -29,8 +25,7 @@ export class QuizzesService {
   findQuizzesByClassAndStudent(classId: number, studentId: number) {
     const query = this.quizRepository
       .createQueryBuilder('A')
-      .leftJoinAndSelect('A.studentAnswers', 'B')
-      .leftJoin('B.student', 'C', 'C.id = :studentId')
+      .leftJoinAndSelect('A.studentAnswers', 'B', 'B.studentId = :studentId')
       .andWhere('A.classId = :classId')
       .setParameters({ studentId, classId });
     return query.getMany();
@@ -58,9 +53,6 @@ export class QuizzesService {
   }
 
   async update(id: number, updateDto: UpdateQuizDto) {
-    if (updateDto.password) {
-      updateDto.password = await hash(updateDto.password, 12);
-    }
     const result = await this.quizRepository.save({
       id,
       ...updateDto,
@@ -94,8 +86,6 @@ export class QuizzesService {
     if (!quiz.password) {
       return false;
     }
-    let isValid: boolean = false;
-    isValid = await compare(password, quiz.password);
-    return isValid;
+    return password === quiz.password;
   }
 }

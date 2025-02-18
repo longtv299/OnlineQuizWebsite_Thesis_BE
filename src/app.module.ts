@@ -11,7 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './database/typeorm-config.service';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { UserAnswerModule } from './user-answer/user-answer.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { CacheModule } from '@nestjs/cache-manager';
 import { CacheConfigService } from './config/cache-config.service';
@@ -19,6 +19,7 @@ import { ProfileModule } from './profile/profile.module';
 import { ClassStudentModule } from './class-student/class-student.module';
 import './core/excel';
 import './core/date.extension';
+import { QueryFailedErrorFilter } from './core/exceptions';
 
 @Module({
   imports: [
@@ -51,6 +52,10 @@ import './core/date.extension';
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: QueryFailedErrorFilter,
     },
   ],
 })
