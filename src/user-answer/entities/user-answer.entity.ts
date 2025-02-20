@@ -24,10 +24,10 @@ export class StudentAnswer {
   studentQuizAnswer: Question[];
 
   // Timestamp
-  @Column({nullable: true})
-  startAt: Date
-  
+  @Column({ nullable: true })
+  startAt: Date;
+
   // Timestamp
-  @Column({nullable: true})
-  resolveAt: Date
+  @Column({ nullable: true })
+  resolveAt: Date;
 }

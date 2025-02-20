@@ -1,12 +1,17 @@
 import { Style, Workbook, CellRichTextValue, Worksheet, Row } from 'exceljs';
-import { Readable } from 'stream';
 import {
   CellPosition,
   FillConfig,
   SheetConfig,
   SheetTemplateConfig,
 } from './types';
-import { border, center, small, smallBold } from './types/constants';
+import {
+  border,
+  center,
+  mediumBold,
+  small,
+  smallBold,
+} from './types/constants';
 import { calcMaxHeight } from './exceljs.extension';
 import { get, merge } from 'lodash';
 import { InternalServerErrorException } from '@nestjs/common';
@@ -41,144 +46,6 @@ export class ExcelUtil {
     );
     if (rMaxHeight > row.height) {
       row.height = rMaxHeight;
-    }
-  }
-
-  async fillToTemplate(
-    file: Readable,
-    config: FillConfig<SheetTemplateConfig>,
-  ) {
-    const templateWorkbook = await new Workbook().xlsx.read(file);
-    for (const sheet of config.sheets) {
-      const worksheet = templateWorkbook.getWorksheet(
-        sheet.templateSheet || sheet.name,
-      );
-      if (!worksheet) throw new InternalServerErrorException();
-      const mergeInCols: number[] = [];
-      this._workbook.pushWorksheet(sheet.name, worksheet);
-      const ws = this._workbook.getWorksheet(sheet.name);
-      if (!ws) {
-        continue;
-      }
-      sheet.columns.forEach((column) => {
-        const columnConfig = ws.getColumn(column.col);
-        columnConfig.key = column.code;
-        if (column.width) {
-          columnConfig.width = column.width;
-        }
-        if (column.hasMerged) {
-          mergeInCols.push(column.col);
-        }
-      });
-      // Cấu hình các cột mở rộng
-      if (sheet.expandColumns) {
-        this.expandColumn(ws, sheet);
-      }
-      if (sheet.replace) {
-        this.replaceCell(ws, sheet);
-      }
-      const rowStart = sheet.rowStart;
-      if (sheet.groupBy) {
-        this.groupCell(ws, sheet);
-      } else {
-        // Fill dữ liệu
-        sheet.data.forEach((e, i) => {
-          const row = ws.getRow(sheet.rowStart + i);
-          sheet.columns.concat(sheet.expandColumns ?? []).forEach((col) => {
-            const currentCell = row.getCell(col.code);
-            currentCell.style = merge(
-              {},
-              { font: small, border, alignment: center },
-              sheet.commonCellDataStyle,
-              col.cellDataStyle ?? {},
-            );
-            if (col.code === 'stt') {
-              currentCell.value = i + 1;
-            } else if (col.transform && typeof col.transform === 'function') {
-              currentCell.value = col.transform(get(e, col.code ?? ''), e);
-            } else {
-              currentCell.value = get(e, col.code ?? '');
-            }
-            this.setMaxHeight(
-              ws,
-              row,
-              [currentCell.value?.toString() ?? ''],
-              col.code,
-            );
-          });
-          if (sheet.simpleMergeRowBy) {
-            row.key = get(e, sheet.simpleMergeRowBy);
-          }
-        });
-      }
-      if (sheet.views) {
-        ws.views = sheet.views;
-      }
-      // merge cells
-      if (sheet.mergeAndCenterCells) {
-        sheet.mergeAndCenterCells.forEach((mc: CellPosition) => {
-          ws.mergeCells(mc);
-          ws.getCell(mc[0], mc[1]).alignment = {
-            horizontal: 'center',
-            vertical: 'middle',
-            wrapText: true,
-          };
-        });
-      }
-      if (sheet.mergeCells) {
-        sheet.mergeCells.forEach((mc) => {
-          ws.mergeCells(...mc.position);
-          const cell = ws.getCell(mc.position[0], mc.position[1]);
-          cell.style = merge({}, cell.style, mc.style);
-        });
-      }
-      if (mergeInCols.length) {
-        mergeInCols.forEach((columnNumber) => {
-          const mergeCells: (
-            | { value: any; master: number; last: number }
-            | undefined
-          )[] = [];
-          ws.getColumn(columnNumber).eachCell((cell, rowNumber) => {
-            if (rowNumber <= rowStart) {
-              return;
-            }
-            const lastMerged = mergeCells?.at(-1);
-            if (sheet.simpleMergeRowBy) {
-              const cRow = ws.getRow(rowNumber);
-              if (!cRow?.key) {
-                return;
-              }
-              if (lastMerged && cRow && cRow.key === lastMerged.value) {
-                lastMerged.last = rowNumber;
-              } else {
-                mergeCells.push({
-                  value: cRow.key,
-                  master: rowNumber,
-                  last: rowNumber,
-                });
-              }
-            } else if (lastMerged && cell.value === lastMerged.value) {
-              lastMerged.last = rowNumber;
-            } else {
-              mergeCells.push({
-                value: cell.value,
-                master: rowNumber,
-                last: rowNumber,
-              });
-            }
-          });
-          mergeCells.forEach((range) => {
-            if (range && range.last !== range.master) {
-              ws.mergeCells(
-                range.master,
-                columnNumber,
-                range.last,
-                columnNumber,
-              );
-            }
-          });
-        });
-      }
     }
   }
   async fillToBlank(config: FillConfig<SheetConfig>) {
@@ -248,6 +115,9 @@ export class ExcelUtil {
           }
         });
       }
+      if (sheet.expandColumns) {
+        this.expandColumnStyle(ws, sheet);
+      }
       if (sheet.views) {
         ws.views = sheet.views;
       }
@@ -318,17 +188,37 @@ export class ExcelUtil {
       }
     }
   }
-  private expandColumn(ws: Worksheet, sheet: SheetTemplateConfig) {
-    let rowOfExpandedColumn: number = 0;
-    // các cột thuộc expandColumn sẽ style theo cột đầu tiên
-    const cellMap: Map<number, Partial<Style>> = new Map();
-    let firstColWidth = ws.properties.defaultColWidth;
 
+  private expandColumn(ws: Worksheet, sheet: SheetTemplateConfig) {
+    let firstColWidth = ws.properties.defaultColWidth;
     sheet.expandColumns?.forEach((ec, i) => {
       const column = ws.getColumn(ec.col);
       column.key = ec.code;
       if (i === 0) {
         firstColWidth = column.width;
+      } else {
+        column.width = firstColWidth;
+      }
+      if (typeof ec.title === 'string') {
+        ws.getCell(sheet.rowStart - 1, ec.col).value = ec.title;
+      } else {
+        ws.getCell(ec.title?.row ?? 1, ec.col).value = ec.title?.text ?? '';
+      }
+    });
+  }
+
+  private expandColumnStyle(ws: Worksheet, sheet: SheetTemplateConfig) {
+    const cellMap: Map<number, Partial<Style>> = new Map();
+
+    sheet.expandColumns?.forEach((ec, i) => {
+      // style dòng title
+      ws.getCell(sheet.rowStart - 1, ec.col).style = {
+        border,
+        font: mediumBold,
+        alignment: center,
+      };
+      const column = ws.getColumn(ec.col);
+      if (i === 0) {
         column.eachCell((colCell, row) => {
           if (row < sheet.rowStart) {
             return;
@@ -341,24 +231,14 @@ export class ExcelUtil {
             ec.cellDataStyle,
           );
           cellMap.set(row, cellStyle);
-          rowOfExpandedColumn = row;
+          ws.getCell(row, ec.col).style = cellStyle;
         });
       } else {
-        column.width = firstColWidth;
         cellMap.forEach((style, row) => {
           ws.getCell(row, ec.col).style = { ...style };
         });
       }
-      if (typeof ec.title === 'string') {
-        ws.getCell(sheet.rowStart, ec.col).value = ec.title;
-      } else {
-        ws.getCell(ec.title?.row ?? 1, ec.col).value = ec.title?.text ?? '';
-      }
     });
-    ws.getRow(rowOfExpandedColumn - 1).height = calcMaxHeight(
-      sheet.expandColumns.map((ec) => ec.title?.toString() ?? ''),
-      firstColWidth ?? 1,
-    );
   }
 
   private replaceCell(ws: Worksheet, sheet: SheetTemplateConfig) {

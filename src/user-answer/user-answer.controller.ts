@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Query, Res, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  Res,
+  Req,
+} from '@nestjs/common';
 import { UserAnswerService } from './user-answer.service';
 import { CreateUserAnswerDto } from './dto/create-user-answer.dto';
 import { ExcelUtil } from '../core/excel';
@@ -15,7 +24,7 @@ export class UserAnswerController {
   create(@Req() request: Request, @Body() createDto: CreateUserAnswerDto) {
     const user: User | null = request['user'];
     if (!user.student) {
-      throw new NotFound<Student>()
+      throw new NotFound<Student>();
     }
     createDto.student = user.student;
     return this.userAnswerService.create(+user.student.id, createDto);
@@ -25,9 +34,9 @@ export class UserAnswerController {
   start(@Req() request: Request, @Param('quizId') quizId: number) {
     const user: User | null = request['user'];
     if (!user.student) {
-      throw new NotFound<Student>()
+      throw new NotFound<Student>();
     }
-    return this.userAnswerService.start(user?.student?.id ?? 0,+quizId);
+    return this.userAnswerService.start(user?.student?.id ?? 0, +quizId);
   }
 
   @Get('find-many/by-class/:classId')
@@ -52,12 +61,19 @@ export class UserAnswerController {
     const result = await this.userAnswerService.exportByQuizId(+quizId);
     res.set(ExcelUtil.header('result.xlsx')).send(result);
   }
+
   @Get('export/by-student/:studentId')
   async exportByStudent(
     @Res() res: Response,
     @Param('studentId') studentId: string,
   ) {
     const result = await this.userAnswerService.exportByStudent(+studentId);
+    res.set(ExcelUtil.header('result.xlsx')).send(result);
+  }
+
+  @Get('export/by-class/:classId')
+  async exportByClass(@Res() res: Response, @Param('classId') classId: string) {
+    const result = await this.userAnswerService.exportByClass(+classId);
     res.set(ExcelUtil.header('result.xlsx')).send(result);
   }
 }

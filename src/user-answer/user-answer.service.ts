@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserAnswerDto } from './dto/create-user-answer.dto';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StudentAnswer } from './entities/user-answer.entity';
 import { QuizzesService } from '../quizzes/services/quizzes.service';
@@ -13,8 +13,15 @@ import { difference, groupBy, intersection } from 'lodash';
 import { Student } from '../users/entities/student.entity';
 import { Quiz } from '../quizzes/entities/quiz.entity';
 import { ExcelUtil } from '../core/excel';
-import { center, left, mediumBold, SheetConfig } from '../core/excel/types';
+import {
+  center,
+  ExpandColumn,
+  left,
+  mediumBold,
+  SheetConfig,
+} from '../core/excel/types';
 import { StudentsService } from '../users/services/students.service';
+import { ClassesService } from '../classes/classes.service';
 
 @Injectable()
 export class UserAnswerService {
@@ -22,6 +29,7 @@ export class UserAnswerService {
     @InjectRepository(StudentAnswer)
     private readonly repository: Repository<StudentAnswer>,
     private readonly quizzesService: QuizzesService,
+    private readonly classesService: ClassesService,
     private readonly studentsService: StudentsService,
   ) {}
   async create(studentId: number, createDto: CreateUserAnswerDto) {
@@ -354,6 +362,86 @@ export class UserAnswerService {
     });
     return exporter.writeFile();
   }
+  async exportByClass(classId: number) {
+    const classData = await this.classesService.findOne(classId);
+    const students: any[] = await this.studentsService.findByClass(classId);
+    const data = await this.repository.find({
+      relations: {
+        student: {
+          user: true,
+        },
+        quiz: true,
+      },
+      where: {
+        quiz: { class: { id: classId } },
+      },
+    });
+
+    students.forEach((s: DeepPartial<Student> & { quizzes?: any }) => {
+      s.user = { id: s.id, fullName: s.user.fullName };
+      s.quizzes = (data.filter((d) => d.studentId === s.id) ?? []).map((q) => {
+        return {
+          score: q.score,
+          id: q.quizId,
+          name: q.quiz.title,
+        };
+      });
+    });
+
+    const quizzesOfClass =
+      await this.quizzesService.findQuizzesForClass(classId);
+
+    const expandColumns: ExpandColumn[] = quizzesOfClass.map((e, i) => ({
+      col: 3 + i,
+      code: `quizzes.${e.id}`,
+      title: e.title,
+      transform: (
+        value: any,
+        row: { quizzes?: { score: number; id: number }[] },
+      ) => {
+        return row.quizzes.find((q) => q.id === e.id)?.score ?? '';
+      },
+      cellDataStyle: {
+        alignment: center,
+        font: { color: { argb: 'ffff0000' } },
+      },
+    }));
+
+    const exporter = new ExcelUtil();
+    await exporter.fillToBlank({
+      sheets: [{ students }].map<SheetConfig>((e) => ({
+        mergeAndCenterCells: [[1, 1, 1, 2 + expandColumns.length]],
+        name: 'Sheet 1',
+        rowStart: 3,
+        commonCellDataStyle: { alignment: left },
+        expandColumns,
+        columns: [
+          {
+            col: 1,
+            code: 'stt',
+            header: 'No.',
+            cellDataStyle: { alignment: center },
+          },
+          {
+            col: 2,
+            code: 'user.fullName',
+            header: 'Full name',
+            width: 60,
+          },
+        ],
+        fillSpecCell: [
+          {
+            cell: [1, 1],
+            value: `Result of Class: ${classData.name}`,
+            style: { font: mediumBold },
+          },
+        ],
+        data: e.students,
+      })),
+    });
+    return exporter.writeFile();
+  }
+
   async exportByStudent(studentId: number) {
     const student = await this.studentsService.findOne(studentId);
     const data = await this.findResultByStudent(studentId);

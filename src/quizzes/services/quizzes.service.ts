@@ -57,6 +57,7 @@ export class QuizzesService {
     // Nếu quiz đã có người giải thì không được phép sửa
     const isDone = await this.quizRepository.exists({
       where: {
+        id,
         studentAnswers: {
           studentId: Not(IsNull()),
         },
@@ -98,10 +99,9 @@ export class QuizzesService {
     if (!quiz.password) {
       return false;
     }
-    const curDate = new Date();
+    // const curDate = new Date();
     // Kiểm tra đã đến ngày làm bài chưa? Nếu chưa thì khôg được làm
-    console.log(quiz.startDate, curDate, curDate > quiz.startDate);
-
+    // console.log(quiz.startDate, curDate, curDate > quiz.startDate);
     return password === quiz.password;
   }
 }
