@@ -105,7 +105,7 @@ export class UserAnswerService {
       (pre: number, cur: QuestionWithAnswer, index: number) => {
         if (cur.isChooseOne) {
           // cộng điểm khi trả lời đúng
-          if (cur.answers[studentQuizAnswer[index].selectedAnswer]) {
+          if (cur.correctAnswer === studentQuizAnswer[index].selectedAnswer) {
             return pre + scorePerQuestion;
           }
         } else {
@@ -142,7 +142,7 @@ export class UserAnswerService {
       (pre: number, cur: QuestionWithAnswer, index: number) => {
         if (cur.isChooseOne) {
           // cộng điểm khi trả lời đúng
-          if (cur.answers[studentQuizAnswer[index].selectedAnswer]) {
+          if (cur.correctAnswer === studentQuizAnswer[index].selectedAnswer) {
             return pre + scorePerQuestion;
           }
         } else {
@@ -298,7 +298,6 @@ export class UserAnswerService {
         relationLoadStrategy: 'query',
       })
       .getOne();
-
     return result;
   }
 
