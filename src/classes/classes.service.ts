@@ -14,7 +14,7 @@ export class ClassesService {
     private readonly classRepository: Repository<Class>,
   ) {}
   async create(user: User, createClassDto: CreateClassDto) {
-    await this.classRepository.save({ ...createClassDto, teacher: user });
+    await this.classRepository.save({ ...createClassDto, teacher: user?.teacher });
   }
 
   async findAll() {

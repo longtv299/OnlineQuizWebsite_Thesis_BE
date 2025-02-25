@@ -26,7 +26,7 @@ export class ClassesController {
   @Get()
   findAll(@Request() { user }: { user: User }) {
     if (user.position.id === PositionEnum.Teacher) {
-      return this.classesService.findAllByTeacher(user.id);
+      return this.classesService.findAllByTeacher(user.teacher.id);
     } else {
       return this.classesService.findAllByStudent(user.id);
     }
