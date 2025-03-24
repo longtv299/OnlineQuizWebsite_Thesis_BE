@@ -22,11 +22,6 @@ export class UpdateQuizDto extends PartialType(CreateQuizDto) {
   @MaxLength(100)
   title?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  password?: string;
-
   @ApiPropertyOptional({ type: Date })
   @IsOptional()
   startDate?: Date;

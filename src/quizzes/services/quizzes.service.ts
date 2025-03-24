@@ -94,14 +94,4 @@ export class QuizzesService {
 
     return cloneQuiz;
   }
-  async verifyPassword(id: number, password: string) {
-    const quiz = await this.quizRepository.findOneBy({ id });
-    if (!quiz.password) {
-      return false;
-    }
-    // const curDate = new Date();
-    // Kiểm tra đã đến ngày làm bài chưa? Nếu chưa thì khôg được làm
-    // console.log(quiz.startDate, curDate, curDate > quiz.startDate);
-    return password === quiz.password;
-  }
 }

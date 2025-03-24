@@ -19,10 +19,6 @@ export class CreateQuizDto {
   @MaxLength(100)
   title: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  password: string;
-
   @ApiProperty({ type: Date })
   @IsOptional()
   startDate?: Date;
