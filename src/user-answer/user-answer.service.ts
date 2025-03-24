@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserAnswerDto } from './dto/create-user-answer.dto';
 import { DeepPartial, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -44,29 +44,18 @@ export class UserAnswerService {
         resolveAt: new Date(),
       },
     );
-    let score = 0;
     // Tính điểm theo các phương thức được xác định trong đề
-    switch (quizDetail.scoreMethod) {
-      case 2:
-        score = this.secondSituation(
-          quizDetail.questions,
-          createDto.studentQuizAnswer,
-        );
-        break;
-      case 3:
-        score = this.thirdSituation(
-          quizDetail.questions,
-          createDto.studentQuizAnswer,
-          quizDetail,
-        );
-        break;
-      default:
-        score = this.firstSituation(
-          quizDetail.questions,
-          createDto.studentQuizAnswer,
-        );
-        break;
-    }
+    const score =
+      quizDetail.scoreMethod === 3
+        ? this.thirdSituation(
+            quizDetail.questions,
+            createDto.studentQuizAnswer,
+            quizDetail,
+          )
+        : this.firstSituation(
+            quizDetail.questions,
+            createDto.studentQuizAnswer,
+          );
     return await this.repository.save({
       ...createDto,
       student: { id: studentId },
@@ -84,7 +73,9 @@ export class UserAnswerService {
       where: { studentId, quizId },
     });
     if (isCreated) {
-      return;
+      throw new BadRequestException({
+        message: 'You had done this quiz',
+      });
     }
     return await this.repository.insert({
       quizId,

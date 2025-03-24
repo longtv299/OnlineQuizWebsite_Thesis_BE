@@ -8,8 +8,15 @@ class CustomCell extends require('exceljs/dist/es5/doc/cell') {
   };
 }
 class CustomWorksheet extends require('exceljs/dist/es5/doc/worksheet') {
-  getCellAt = function (this: Worksheet, r: number | string, c: number | string) {
-    return Object.setPrototypeOf(Object.assign({}, this.getCell(r, c)), CustomCell.prototype);
+  getCellAt = function (
+    this: Worksheet,
+    r: number | string,
+    c: number | string,
+  ) {
+    return Object.setPrototypeOf(
+      Object.assign({}, this.getCell(r, c)),
+      CustomCell.prototype,
+    );
   };
 }
 Object.assign(ExcelJS, {
@@ -20,7 +27,11 @@ Object.assign(ExcelJS, {
 declare module 'exceljs' {
   interface Workbook {
     getWs(indexOrName?: number | string): Worksheet | undefined;
-    pushWorksheet(name: string, worksheet: Worksheet, config?: { merges?: string[] }): Worksheet;
+    pushWorksheet(
+      name: string,
+      worksheet: Worksheet,
+      config?: { merges?: string[] },
+    ): Worksheet;
   }
   class Cell {
     draw();
@@ -40,13 +51,19 @@ Workbook.prototype.pushWorksheet = function (
 ) {
   const copyWs: Worksheet = this.addWorksheet(name);
   copyWs.model = structuredClone(worksheet.model);
-  const mergeCellsFromTemplate = [...worksheet.model.merges, ...(config?.merges ?? [])];
+  const mergeCellsFromTemplate = [
+    ...worksheet.model.merges,
+    ...(config?.merges ?? []),
+  ];
   mergeCellsFromTemplate.forEach((merge) => copyWs.mergeCells(merge));
 
   copyWs.name = name;
   return copyWs;
 };
-Workbook.prototype.getWs = function (this: Workbook, indexOrName?: number | string) {
+Workbook.prototype.getWs = function (
+  this: Workbook,
+  indexOrName?: number | string,
+) {
   return Object.setPrototypeOf(
     Object.assign({}, this.getWorksheet(indexOrName)),
     CustomWorksheet.prototype,
@@ -66,7 +83,9 @@ export const calcMaxHeight = (listText: string[], defaultWidth: number = 1) => {
     Math.max(
       ...listText?.map((text) => {
         const lines = text?.toString().split('\n').length ?? 0;
-        const approxHeight = Math.ceil((text?.toString()?.length ?? 0) / defaultWidth); // Adjust the divisor to fit your column width
+        const approxHeight = Math.ceil(
+          (text?.toString()?.length ?? 0) / defaultWidth,
+        ); // Adjust the divisor to fit your column width
         return Math.max(lines, approxHeight);
       }),
     ) *
