@@ -47,11 +47,7 @@ export class UserAnswerService {
     // Tính điểm theo các phương thức được xác định trong đề
     const score =
       quizDetail.scoreMethod === 3
-        ? this.thirdSituation(
-            quizDetail.questions,
-            createDto.studentQuizAnswer,
-            quizDetail,
-          )
+        ? this.thirdSituation(quizDetail.questions, createDto.studentQuizAnswer)
         : this.firstSituation(
             quizDetail.questions,
             createDto.studentQuizAnswer,
@@ -121,57 +117,11 @@ export class UserAnswerService {
     return score;
   }
 
-  // Chỉ tính điểm các ý đúng
-  private secondSituation(
-    questions: Question[],
-    studentQuizAnswer: StudentQuizAnswer[],
-  ) {
-    const scorePerQuestion = 10 / questions.length;
-    let isFullScore = true;
-    // Chấm điểm từng câu
-    let score = questions.reduce(
-      (pre: number, cur: QuestionWithAnswer, index: number) => {
-        if (cur.isChooseOne) {
-          // cộng điểm khi trả lời đúng
-          if (cur.correctAnswer === studentQuizAnswer[index].selectedAnswer) {
-            return pre + scorePerQuestion;
-          }
-        } else {
-          // cộng điểm khi chọn 1 vài đáp án đúng
-          const correctAnswer = intersection(
-            cur.correctAnswer,
-            studentQuizAnswer[index].selectedAnswer,
-          );
-
-          if (correctAnswer.length != cur.correctAnswer.length) {
-            isFullScore = false;
-          }
-
-          return (
-            pre +
-            scorePerQuestion *
-              (correctAnswer.length / (cur.correctAnswer.length ?? 1))
-          );
-        }
-        isFullScore = false;
-        return pre;
-      },
-      0,
-    );
-    if (isFullScore) {
-      score = 10;
-    }
-    return score;
-  }
-
   // Cộng điểm các ý đúng, trừ điểm các ý sai
   private thirdSituation(
     questions: Question[],
     studentQuizAnswer: StudentQuizAnswer[],
-    quiz: Quiz,
   ) {
-    const pWrongQs = quiz.pWrongQuestion;
-    const pWrongOptions = quiz.pWrongOption;
     const scorePerQuestion = 10 / questions.length;
     let isFullScore = true;
     // Chấm điểm từng câu
@@ -181,9 +131,6 @@ export class UserAnswerService {
           // cộng điểm khi trả lời đúng
           if (cur.correctAnswer === studentQuizAnswer[index].selectedAnswer) {
             return pre + scorePerQuestion;
-          } else {
-            // trừ điểm khi trả lời sai
-            return pre - scorePerQuestion * pWrongQs;
           }
         } else {
           // cộng điểm khi chọn 1 vài đáp án đúng
@@ -193,12 +140,12 @@ export class UserAnswerService {
             studentQuizAnswer[index].selectedAnswer,
           );
           const wrongAnswers = cur.answers.length - cur.correctAnswer.length;
-
+          let score = 0;
           if (correctAnswer.length === cur.correctAnswer.length) {
-            pre += scorePerQuestion;
+            score += scorePerQuestion;
           } else {
             isFullScore = false;
-            pre += scorePerOption * correctAnswer.length;
+            score += scorePerOption * correctAnswer.length;
           }
 
           // sai do chọn sai
@@ -207,14 +154,10 @@ export class UserAnswerService {
             cur.correctAnswer,
           );
           if (selectedIncorrect?.length) {
-            isFullScore = false;
-            pre =
-              pre -
-              (selectedIncorrect.length * pWrongOptions * scorePerQuestion) /
-                wrongAnswers;
+            score -=
+              (selectedIncorrect.length * scorePerQuestion) / wrongAnswers;
           }
-
-          return pre;
+          return score > 0 ? pre + score : pre;
         }
       },
       0,

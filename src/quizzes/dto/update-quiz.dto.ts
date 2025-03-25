@@ -30,20 +30,10 @@ export class UpdateQuizDto extends PartialType(CreateQuizDto) {
   @IsNumber()
   time: number;
 
-  @ApiProperty({ enum: [1, 2, 3] })
+  @ApiProperty({ enum: [1, 3] })
   @IsNotEmpty()
   @IsNumber()
-  scoreMethod: 1 | 2 | 3;
-
-  @ApiPropertyOptional({ enum: [1, 2, 3] })
-  @IsOptional()
-  @IsNumber()
-  pWrongQuestion?: number;
-
-  @ApiPropertyOptional({ enum: [1, 2, 3] })
-  @IsOptional()
-  @IsNumber()
-  WrongOption?: number;
+  scoreMethod: 1 | 3;
 
   @ApiPropertyOptional({ type: () => ClassDto })
   @Type(() => ClassDto)

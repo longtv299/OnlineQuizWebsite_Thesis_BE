@@ -26,12 +26,6 @@ export class Quiz {
   @Column({ nullable: true })
   scoreMethod?: 1 | 2 | 3;
 
-  @Column('float', { nullable: true })
-  pWrongQuestion?: number;
-
-  @Column('float', { nullable: true })
-  pWrongOption?: number;
-
   @Column('json', { nullable: true })
   questions: Question[];
 
