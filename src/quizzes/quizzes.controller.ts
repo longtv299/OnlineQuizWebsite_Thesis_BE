@@ -25,7 +25,7 @@ export class QuizzesController {
   }
   @Post('clone/by-id')
   clone(@Body() payload: QuizDto) {
-    return this.quizzesService.clone(+payload.id);
+    return this.quizzesService.clone(+payload.id, +payload.class.id);
   }
 
   @Get()

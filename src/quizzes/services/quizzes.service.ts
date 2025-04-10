@@ -77,7 +77,8 @@ export class QuizzesService {
   remove(id: number) {
     return this.quizRepository.delete(id);
   }
-  async clone(id: number) {
+  //reuse
+  async clone(id: number, classId: number) {
     const quiz = await this.quizRepository.findOne({
       where: { id },
       relations: {
@@ -90,6 +91,7 @@ export class QuizzesService {
     const cloneQuiz = await this.quizRepository.save({
       ...quiz,
       id: null,
+      class: {id: classId}
     });
 
     return cloneQuiz;
