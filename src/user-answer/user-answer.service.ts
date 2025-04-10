@@ -46,12 +46,12 @@ export class UserAnswerService {
     );
     // Tính điểm theo các phương thức được xác định trong đề
     const score =
-      quizDetail.scoreMethod === 3
-        ? this.thirdSituation(quizDetail.questions, createDto.studentQuizAnswer)
-        : this.firstSituation(
-            quizDetail.questions,
-            createDto.studentQuizAnswer,
-          );
+    quizDetail.scoreMethod === 3
+    ? this.thirdSituation(quizDetail.questions, createDto.studentQuizAnswer)
+    : this.firstSituation(
+      quizDetail.questions,
+      createDto.studentQuizAnswer,
+    );
     return await this.repository.save({
       ...createDto,
       student: { id: studentId },
@@ -98,14 +98,20 @@ export class UserAnswerService {
         } else {
           // cộng điểm khi chọn tất cả các đáp án đúng và không chọn đáp án sai
           // Nếu có sai khác giữa đáp án và câu trả lời => sai
-          const isCorrect = !difference(
+          let isCorrect = !difference(
             cur.correctAnswer,
             studentQuizAnswer[index].selectedAnswer,
           )?.length;
           if (isCorrect) {
+            isCorrect = !difference(
+              studentQuizAnswer[index].selectedAnswer,
+              cur.correctAnswer,
+            )?.length;
+          }          
+          if (isCorrect) {
             return pre + scorePerQuestion;
           }
-        }
+        }        
         isFullScore = false;
         return pre;
       },
@@ -132,6 +138,7 @@ export class UserAnswerService {
           if (cur.correctAnswer === studentQuizAnswer[index].selectedAnswer) {
             return pre + scorePerQuestion;
           }
+          return pre
         } else {
           // cộng điểm khi chọn 1 vài đáp án đúng
           const scorePerOption = scorePerQuestion / cur.correctAnswer.length;
